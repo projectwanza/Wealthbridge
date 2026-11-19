@@ -136,7 +136,16 @@ async function wallet(){
  <div class="grid w3">${tiles.map(x=>`<div class="card stat"><small>${x[0]}</small><b>${inr2(x[1])}</b></div>`).join('')}</div>
  <h3>Withdrawal requests</h3><div class="card">${w.withdrawals.length?w.withdrawals.map(t=>`<div class="row"><div><b>${inr2(t.amount)}</b><br><small style="color:var(--mut)">${fd(t.created)} · ${esc(t.id)}</small></div><span class="pill ${t.status}">${t.status}</span></div>`).join(''):'<div class="empty">No withdrawal requests yet.</div>'}</div>`;
 }
-function wAdd(){
+async function wAdd(){
+ let pm;try{pm=await call('paymentMode')}catch(e){toast(e.message);return}
+ if(pm.mode==='api')return wAddApi();
+ if(pm.mode!=='button'){toast('Online payments are currently unavailable. Please contact support.');return}
+ const m=modal(`<h3 style="margin-top:0">Add money</h3><p class="sub">Add money to your wallet securely with Razorpay.</p><button class="btn" style="width:100%" id="rzgo">Pay with Razorpay</button><div id="rzbox" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"></div><p class="sub" style="margin-top:12px">Your wallet is credited after the payment is confirmed.</p>`);
+ const box=$('#rzbox');
+ try{box.appendChild(document.createRange().createContextualFragment(pm.buttonCode))}catch(e){}
+ $('#rzgo').onclick=()=>{const b=box.querySelector('button,input[type=submit]');if(b)b.click();else{box.removeAttribute('style');toast('Loading Razorpay… tap the Razorpay button below.')}};
+}
+function wAddApi(){
  const m=modal(`<h3 style="margin-top:0">Add money</h3><div id="err" class="err" hidden></div><label>Enter amount (₹)</label><input id="am" type="number" inputmode="decimal" placeholder="e.g. 5000"><label>Payment method</label><select id="pmth"><option value="all">UPI, Card &amp; Net Banking</option><option value="upi">UPI</option><option value="card">Debit / Credit Card</option><option value="netbanking">Net Banking</option></select><button class="btn" style="width:100%" id="go">Continue to payment</button>`);
  $('#go').onclick=e=>act(e.target,async()=>{const o=await call('walletAdd',{amount:$('#am').value});m.remove();wPay(o,$('#pmth').value)});
 }
@@ -273,6 +282,17 @@ function openInvest2(p){
   m.querySelectorAll('#pf button').forEach(b=>b.onclick=()=>{$('#pw').value=b.dataset.v;m.querySelectorAll('#pf button').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-checked',x===b)})});
   $('#am').oninput=()=>{lim();pv();hist()};pick(fs[0]);
   call('wallet').then(w=>{$('#wb').textContent='Wallet balance: '+inr2(w.balance)}).catch(()=>{});
+    /* Payment-mode rules (added): Button/None mode = wallet only; API mode = wallet + Razorpay */
+  Promise.all([call('wallet'),call('paymentMode')]).then(([w,pm])=>{
+    const api=pm.mode==='api',on=m.querySelector('#pf [data-v="ONLINE"]'),wl=m.querySelector('#pf [data-v="WALLET"]'),go=$('#go');
+    wl.textContent='Pay using Wallet';on.textContent='Pay using Razorpay';
+    if(!api){on.style.display='none';$('#pf').style.setProperty('--n',1);$('#pw').value='WALLET'}
+    const info=document.createElement('p');info.className='sub';$('#wb').after(info);
+    const chk=()=>{const a=+$('#am').value||0,low=a>0&&a>w.balance;
+      info.innerHTML='Investment amount: <b>'+inr2(a)+'</b>'+(low?'<br><span style="color:#c0392b">'+(api?'Insufficient wallet balance. Choose Pay using Razorpay instead.':'Insufficient wallet balance. Add money to your wallet first.')+'</span>':'');
+      go.disabled=$('#pw').value==='WALLET'&&low};
+    $('#am').addEventListener('input',chk);m.querySelectorAll('#pf button').forEach(b=>b.addEventListener('click',chk));chk();
+  }).catch(()=>{});
   /* identical API call to the old popup – backend unchanged */
   $('#go').onclick=e=>act(e.target,async()=>{const o=await call('invest',{productId:p.id,frequency:$('#fq').value,amount:$('#am').value,lockDays:($('#hd')||{}).value,payWith:$('#pw').value});m.remove();if(o.wallet){toast('Paid from wallet');go('inv')}else checkout(o)});
 }
@@ -290,7 +310,7 @@ async function inv(){
    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${['Active','Pending'].includes(i.status)&&i.nextDate?`<button class="btn sm" onclick="payNow('${i.id}',this)">Pay now</button>`:''}${i.status==='Active'&&i.frequency!=='One-time'?`<button class="btn sm sec" onclick="sub('${i.id}','Pause')">Pause</button>`:''}${i.status==='Paused'?`<button class="btn sm sec" onclick="sub('${i.id}','Resume')">Resume</button>`:''}${['Active','Paused'].includes(i.status)&&i.frequency!=='One-time'?`<button class="btn sm sec" onclick="if(confirm('Cancel this subscription?'))sub('${i.id}','Cancel')">Cancel</button>`:''}${i.redeemable>0?`<button class="btn sm sec" onclick="redeem('${i.id}',${i.redeemable})">Withdraw</button>`:''}</div></div>`).join(''):'<div class="card empty">You have no investments yet.<br><br><button class="btn sm" onclick="go(\'prod\')">Browse products</button></div>'}
   <h3>Withdrawal requests</h3><div class="card">${rd.length?rd.map(r=>`<div class="row"><div><b>${inr(r.amount)}</b><br><small style="color:var(--mut)">${fd(r.created)} ${esc(r.note)}</small></div><span class="pill ${r.status}">${r.status}</span></div>`).join(''):'<div class="empty">No withdrawal requests.</div>'}</div>`;
 }
-async function payNow(id,b){const wp=confirm('Pay from your wallet?\n\nOK = Wallet balance\nCancel = UPI / Card / Net Banking');act(b,async()=>{const o=await call('pay',{invId:id,payWith:wp?'WALLET':'ONLINE'});if(o.wallet){toast('Paid from wallet');go('inv')}else checkout(o)})}
+async function payNow(id,b){let wp=true;try{const pm=await call('paymentMode');if(pm.mode==='api')wp=confirm('Pay from your wallet?\n\nOK = Wallet balance\nCancel = UPI / Card / Net Banking')}catch(e){toast(e.message);return}act(b,async()=>{const o=await call('pay',{invId:id,payWith:wp?'WALLET':'ONLINE'});if(o.wallet){toast('Paid from wallet');go('inv')}else checkout(o)})}
 async function sub(id,op){try{await call('setSubscription',{invId:id,op});go('inv')}catch(e){toast(e.message)}}
 function redeem(id,max){const m=modal(`<h3 style="margin-top:0">Withdraw</h3><div id="err" class="err" hidden></div><p class="sub">Available: ${inr(max)}</p><label>Amount (₹)</label><input id="am" type="number" max="${max}"><button class="btn" style="width:100%" id="go">Request withdrawal</button>`);$('#go').onclick=e=>act(e.target,async()=>{await call('redeem',{invId:id,amount:$('#am').value});m.remove();toast('Request sent');go('inv')})}
 async function notif(){
