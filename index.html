@@ -203,6 +203,44 @@ function wRender(){
  const l=window._wl.filter(t=>{const d=String(t.created).slice(0,10);return(f==='all'||(f==='credit'&&t.dir==='CR')||(f==='debit'&&t.dir==='DR')||(f==='pending'&&pe(t.status))||(f==='completed'&&['Completed','Paid'].includes(t.status)))&&(!a||d>=a)&&(!b||d<=b)});
  $('#wl').innerHTML=l.length?l.map(t=>{const cr=t.dir==='CR',c=pe(t.status)?'#d98400':cr?'var(--grn)':'var(--red)';return `<div class="row" style="align-items:flex-start"><div style="min-width:0"><b>${esc(t.desc||t.type)}</b><br><small style="color:var(--mut)">${esc(t.type)} · ${fd(t.created)}<br>ID: ${esc(t.id)}</small></div><div style="text-align:right;white-space:nowrap"><b style="color:${c}">${cr?'+':'−'}${inr2(t.amount)}</b><br><span class="pill ${t.status}">${t.status}</span></div></div>`}).join(''):'<div class="empty">No transactions match your filters.</div>';
 }
+/* ===== Direct / Wallet switch at top (added) – overrides wallet() page view ===== */
+let TXM='W',TXK2=0;
+const txRow=t=>{const cr=t.dir==='CR',pe=['Pending','Approved'].includes(t.status),bad=['Rejected','Failed'].includes(t.status),c=bad?'var(--mut)':pe?'#d98400':cr?'var(--grn)':'var(--red)';
+ return `<div class="row" style="align-items:flex-start"><div style="min-width:0"><b>${esc(t.desc||t.type)}</b><br><small style="color:var(--mut)">${esc(t.type)} · ${fd(t.created)}${t.id?'<br>ID: '+esc(t.id):''}</small></div><div style="text-align:right;white-space:nowrap"><b style="color:${c}">${cr?'+':'−'}${inr2(t.amount)}</b><br><span class="pill ${esc(t.status)}">${esc(t.status)}</span><br><small style="color:var(--mut)">Balance ${inr2(t.bal)}</small></div></div>`};
+function txFlip(b){TXM=b.checked?'W':'D';txPaint()}
+async function txPaint(){
+ const box=$('#tw');if(!box)return;
+ const W=TXM==='W',k=++TXK2;
+ $('#swd').className=W?'':'on';$('#sww').className=W?'on':'';
+ box.innerHTML='<div class="sk"></div><div class="sk"></div>';
+ try{
+  if(W){
+   const [w,l]=await Promise.all([call('wallet'),call('walletLedger')]);
+   if(k!==TXK2||!$('#tw'))return;
+   window._w=w;
+   const tiles=[['Total money added',w.added],['Total money withdrawn',w.withdrawn],['Total money invested',w.invested],['Total money received',w.credit],['Total money debited',w.debit],['Reserved for withdrawals',w.reserved]];
+   box.innerHTML=`<h2>Transaction</h2><p class="sub">Wallet balance and every rupee in and out.</p>
+   <div class="card hero stat" style="margin-bottom:12px;position:relative"><button id="wrf" type="button" aria-label="Refresh wallet" title="Refresh wallet" onclick="wRefresh(this)" style="position:absolute;top:12px;right:12px;width:36px;height:36px;padding:0;border-radius:50%;border:1px solid rgba(255,255,255,.32);background:rgba(255,255,255,.16);color:#fff;display:grid;place-items:center;cursor:pointer">${IC.refresh}</button><small>WALLET BALANCE</small><b>${inr2(w.balance)}</b>
+    <div class="wbtn"><button onclick="wAdd()">${IC.plus}<span>Add Money</span></button></div></div>
+   <div class="grid w3">${tiles.map(x=>`<div class="card stat"><small>${x[0]}</small><b>${inr2(x[1])}</b></div>`).join('')}</div>
+   <h3>Wallet transactions</h3><div class="card" style="max-height:480px;overflow:auto">${l.length?l.map(txRow).join(''):'<div class="empty">No wallet transactions yet.</div>'}</div>
+   <h3>Withdrawal requests</h3><div class="card">${w.withdrawals.length?w.withdrawals.map(t=>`<div class="row"><div><b>${inr2(t.amount)}</b><br><small style="color:var(--mut)">${fd(t.created)} · ${esc(t.id)}</small></div><span class="pill ${t.status}">${t.status}</span></div>`).join(''):'<div class="empty">No withdrawal requests yet.</div>'}</div>`;
+  }else{
+   const d=await call('directView'),s=d.summary;
+   if(k!==TXK2||!$('#tw'))return;
+   const tiles=[['Total invested',s.invested],['Interest earned',s.interest],['Total withdrawn',s.withdrawn],['Available to withdraw',s.redeemable]];
+   box.innerHTML=`<h2>Transaction</h2><p class="sub">Direct investments (paid without wallet).</p>
+   <div class="card hero stat" style="margin-bottom:12px"><small>DIRECT INVESTMENT BALANCE</small><b>${inr2(s.balance)}</b></div>
+   <div class="grid w3">${tiles.map(x=>`<div class="card stat"><small>${x[0]}</small><b>${inr2(x[1])}</b></div>`).join('')}</div>
+   <h3>Direct transactions</h3><div class="card" style="max-height:480px;overflow:auto">${d.rows.length?d.rows.map(txRow).join(''):'<div class="empty">No direct transactions yet.</div>'}</div>`;
+  }
+ }catch(e){if(k===TXK2&&$('#tw'))$('#tw').innerHTML=`<div class="empty">${esc(e.message)}</div>`}
+}
+wallet=async function(){
+ if(!document.getElementById('swcss')){const s=document.createElement('style');s.id='swcss';s.textContent='.sw{display:flex;align-items:center;justify-content:center;gap:12px;font-weight:700;color:var(--navy)}.sw span{opacity:.45}.sw span.on{opacity:1;color:var(--pur)}.sw label{position:relative;width:52px;height:28px;margin:0;display:block}.sw input{position:absolute;opacity:0;width:0;height:0;padding:0;border:0;margin:0}.sw i{position:absolute;inset:0;background:#cfd2e6;border-radius:28px;cursor:pointer;transition:.2s}.sw i:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}.sw input:checked+i{background:var(--pur)}.sw input:checked+i:before{transform:translateX(24px)}';document.head.append(s)}
+ $('#main').innerHTML=`<div class="card" style="margin-bottom:14px"><div class="sw"><span id="swd">Direct</span><label><input type="checkbox" id="swc" ${TXM==='W'?'checked':''} onchange="txFlip(this)"><i></i></label><span id="sww">Wallet</span></div></div><div id="tw"></div>`;
+ await txPaint();
+};
 
 /* ---------- Shell ---------- */
 const NAV=[['dash','⌂','Home'],['prod','✦','Invest'],['wallet','◈','Transaction'],['inv','▤','Mine'],['notif','🔔','Alerts'],['prof','☺','Profile']];
