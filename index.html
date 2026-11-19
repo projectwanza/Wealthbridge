@@ -88,6 +88,11 @@ nav a{flex:0;text-align:left;padding:12px 14px;border-radius:12px;font-size:15px
 .pj-g span{opacity:.88}
 .pj-n{font-size:10.5px;opacity:.72;margin-top:8px}
 @media(max-width:380px){.pj-v{font-size:28px}}
+.kf-h{margin:18px 0 6px;font-weight:800;color:var(--navy);font-size:15px}.kyc-note{font-size:13px;color:var(--mut);margin:0 0 12px}
+.up{display:flex;align-items:center;gap:12px;border:1.5px dashed #cfc7f6;border-radius:14px;padding:12px;margin:4px 0 12px;background:#faf9ff;cursor:pointer}.up.ok{border-style:solid;border-color:#bfe6cd;background:#f3fbf6}.up input{display:none}
+.up .uth{width:46px;height:46px;border-radius:10px;background:#eeeafd;display:grid;place-items:center;font-size:20px;overflow:hidden;flex:none}.up .uth img{width:100%;height:100%;object-fit:cover}
+.up .ut{flex:1;min-width:0}.up .ut b{display:block;font-size:14px;color:var(--navy)}.up .ut small{display:block;color:var(--mut);font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.up .uc{font-size:12px;font-weight:700;color:var(--pur)}
+.kc{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--mut);margin:4px 0 14px}.kc input{width:auto;margin:3px 0 0}
 </style></head><body>
 <div id="app"></div>
 <script>
@@ -422,13 +427,62 @@ async function notif(){
   const l=await call('notifications');api('markRead');
   $('#main').innerHTML=`<h2>Notifications</h2><div class="card">${l.length?l.map(n=>`<div class="row" style="align-items:flex-start"><div><b>${esc(n.title)}</b>${n.read?'':' <span class="pill">new</span>'}<br><span class="sub" style="margin:0">${esc(n.msg)}</span></div><small style="color:var(--mut);white-space:nowrap">${fd(n.created)}</small></div>`).join(''):'<div class="empty">You are all caught up.</div>'}</div>`;
 }
+/* ===== KYC document upload helpers ===== */
+const KYC_DOCS=[['aadhaar','Aadhaar card','Front side, clear photo'],['pan','PAN card','Clear photo of your PAN card'],['bank','Bank passbook','First page with your name & account no., or a cancelled cheque']];
+const KYC_FILES={};
+function kycFmtAadhaar(i){const d=i.value.replace(/\D/g,'').slice(0,12);i.value=d.replace(/(\d{4})(?=\d)/g,'$1 ')}
+function kycShow(k,name,prev){
+  const b=document.getElementById('up_'+k);if(!b)return;
+  b.classList.add('ok');b.querySelector('.uth').innerHTML=prev?`<img src="${prev}" alt="">`:'📄';
+  b.querySelector('.ut small').textContent=name;b.querySelector('.uc').textContent='Change';
+}
+function kycPick(k,inp){
+  const f=inp.files&&inp.files[0];if(!f)return;
+  const isPdf=f.type==='application/pdf'||/\.pdf$/i.test(f.name);
+  if(isPdf){
+    if(f.size>2.5*1024*1024){toast('PDF is too large (max 2.5 MB)');inp.value='';return}
+    const r=new FileReader();r.onload=()=>{KYC_FILES[k]={mime:'application/pdf',data:String(r.result).split(',')[1]};kycShow(k,f.name,'')};r.onerror=()=>toast('Could not read the file');r.readAsDataURL(f);return;
+  }
+  if(!/^image\//.test(f.type)){toast('Please choose a photo (JPG/PNG) or a PDF');inp.value='';return}
+  const img=new Image(),url=URL.createObjectURL(f);
+  img.onload=()=>{
+    const s=Math.min(1,1600/Math.max(img.width,img.height)),c=document.createElement('canvas');
+    c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    const d=c.toDataURL('image/jpeg',.8);URL.revokeObjectURL(url);
+    KYC_FILES[k]={mime:'image/jpeg',data:d.split(',')[1]};kycShow(k,f.name,d);
+  };
+  img.onerror=()=>{URL.revokeObjectURL(url);toast('Could not read this image. Please try another photo.');inp.value=''};
+  img.src=url;
+}
+function kycDocsHtml(){
+  Object.keys(KYC_FILES).forEach(k=>delete KYC_FILES[k]);
+  return KYC_DOCS.map(d=>`<label class="up" id="up_${d[0]}"><input type="file" accept="image/*,application/pdf" onchange="kycPick('${d[0]}',this)"><span class="uth">📤</span><span class="ut"><b>${d[1]}</b><small>${d[2]}</small></span><span class="uc">Upload</span></label>`).join('');
+}
+
+
 async function prof(){
   ME=await call('me');
   $('#main').innerHTML=`<h2>Profile</h2><div class="card"><div class="row"><span>Name</span><b>${esc(ME.name)}</b></div><div class="row"><span>Email</span><b>${esc(ME.email)}</b></div><div class="row"><span>Mobile</span><b>${esc(ME.mobile)}</b></div><div class="row"><span>Account</span><span class="pill ${ME.status}">${ME.status}</span></div><div class="row"><span>KYC</span><span class="pill ${ME.kyc}">${ME.kyc}</span></div></div>
-  ${ME.kyc==='Verified'||ME.kyc==='Pending'?`<div class="card" style="margin-top:12px"><b>KYC details</b><div class="row"><span>PAN</span><b>${esc(ME.pan)}</b></div><div class="row"><span>Bank account</span><b>${esc(ME.acct)}</b></div><div class="row"><span>IFSC</span><b>${esc(ME.ifsc)}</b></div></div>`:
-  `<h3>Complete KYC</h3><div class="card"><div id="err" class="err" hidden></div><label>PAN</label><input id="pn" maxlength="10" style="text-transform:uppercase"><label>Bank account number</label><input id="ac" inputmode="numeric"><label>IFSC code</label><input id="if" maxlength="11" style="text-transform:uppercase"><button class="btn" id="go">Submit for verification</button></div>`}
+  ${ME.kyc==='Verified'||ME.kyc==='Pending'?`<div class="card" style="margin-top:12px"><b>KYC details</b>${ME.aadhaar?`<div class="row"><span>Aadhaar</span><b>${esc(ME.aadhaar)}</b></div>`:''}<div class="row"><span>PAN</span><b>${esc(ME.pan)}</b></div><div class="row"><span>Bank account</span><b>${esc(ME.acct)}</b></div><div class="row"><span>IFSC</span><b>${esc(ME.ifsc)}</b></div>${ME.docs?`<div class="row"><span>Documents</span><span class="pill Verified">Uploaded</span></div>`:''}</div>`:
+  `<h3>Complete KYC</h3>${ME.kyc==='Rejected'?'<div class="err">Your KYC was rejected. Please check your details and documents, then submit again.</div>':''}<div class="card"><div id="err" class="err" hidden></div><p class="kyc-note">Verify your identity to start investing. Your details are sent over a secure connection and used only for KYC.</p>
+  <div class="kf-h">1. Identity &amp; bank details</div>
+  <label>Aadhaar number</label><input id="ad" inputmode="numeric" maxlength="14" placeholder="XXXX XXXX XXXX" oninput="kycFmtAadhaar(this)">
+  <label>PAN</label><input id="pn" maxlength="10" style="text-transform:uppercase"><label>Bank account number</label><input id="ac" inputmode="numeric"><label>IFSC code</label><input id="if" maxlength="11" style="text-transform:uppercase">
+  <div class="kf-h">2. Upload documents</div><p class="kyc-note">JPG, PNG or PDF. Make sure all details are clearly readable.</p>
+  ${kycDocsHtml()}
+  <label class="kc"><input type="checkbox" id="kcn"><span>I confirm these details and documents are mine and I consent to WealthBridge using them for KYC verification.</span></label>
+  <button class="btn" id="go" style="width:100%">Submit for verification</button></div>`}
   <button class="btn sec" style="margin-top:16px" onclick="logout()">Sign out</button>`;
-  const g=$('#go');if(g)g.onclick=e=>act(e.target,async()=>{await call('submitKyc',{pan:val('pn'),acct:val('ac'),ifsc:val('if')});toast('KYC submitted');go('prof')});
+  const g=$('#go');if(g)g.onclick=e=>act(e.target,async()=>{
+    err('');
+    const ad=val('ad').replace(/\s+/g,'');
+    if(!/^[2-9]\d{11}$/.test(ad))throw new Error('Enter a valid 12-digit Aadhaar number');
+    for(const d of KYC_DOCS)if(!KYC_FILES[d[0]])throw new Error('Please upload your '+d[1]);
+    if(!$('#kcn').checked)throw new Error('Please accept the consent to continue');
+    const b=e.target,t=b.textContent;b.textContent='Uploading…';
+    try{await call('submitKyc',{pan:val('pn'),acct:val('ac'),ifsc:val('if'),aadhaar:ad,docs:KYC_FILES,consent:true})}finally{b.textContent=t}
+    toast('KYC submitted');go('prof')});
 }
 async function logout(){await api('logout');TOKEN=null;ME=null;authView('login')}
 authView('login');
