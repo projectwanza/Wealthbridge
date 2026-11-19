@@ -2,6 +2,14 @@
 <html lang="en"><head><base target="_top"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>WealthBridge</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#14183f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="WealthBridge">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
@@ -299,4 +307,7 @@ async function prof(){
 }
 async function logout(){await api('logout');TOKEN=null;ME=null;authView('login')}
 authView('login');
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
+let _ip=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_ip=e;const b=document.createElement('button');b.id='pwaBtn';b.className='btn sm';b.textContent='Install app';b.style.cssText='position:fixed;right:14px;bottom:84px;z-index:25;box-shadow:0 6px 20px rgba(20,24,63,.25)';b.onclick=()=>{b.remove();_ip.prompt();_ip=null};document.body.append(b)});
+window.addEventListener('appinstalled',()=>{const b=document.getElementById('pwaBtn');if(b)b.remove()});
 </script></body></html>
