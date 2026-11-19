@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en"><head><base target="_top"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WealthBridge – Invest</title>
+<meta name="theme-color" content="#14183f">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#14183f;--pur:#6b3df0;--grn:#10a24f;--red:#d93b4a;--bg:#f6f7fb;--card:#fff;--tx:#1c2033;--mut:#6b7190;--bd:#e6e8f2}
+*{box-sizing:border-box;margin:0}
+body{font:15px/1.5 'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+button,input,select{font:inherit}
+.top{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:#fff;border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:5}
+.brand{font-weight:800;font-size:20px;color:var(--navy)}.brand b{color:var(--pur)}
+#who{display:flex;align-items:center;gap:10px}
+.lnk{border:0;background:none;color:var(--mut);cursor:pointer;font-size:13px;text-decoration:underline}
+.tabs{display:flex;gap:6px;max-width:760px;margin:16px auto 0;padding:0 16px}
+.tabs button{flex:1;border:1px solid var(--bd);background:#fff;color:var(--mut);border-radius:12px;padding:10px;font-weight:700;cursor:pointer}
+.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+main{max-width:760px;margin:auto;padding:16px}
+h2{color:var(--navy);margin-bottom:2px}.sub{color:var(--mut);font-size:14px;margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:18px;box-shadow:0 6px 20px rgba(20,24,63,.05);margin-bottom:14px}
+.btn{background:linear-gradient(135deg,var(--navy),var(--pur));color:#fff;border:0;border-radius:12px;padding:11px 18px;font-weight:700;cursor:pointer}
+.btn.sec{background:#eeeafd;color:var(--pur)}.btn.sm{padding:7px 14px;font-size:13px}.btn.full{width:100%;margin-top:6px;padding:14px;font-size:16px}.btn:disabled{opacity:.5}
+input{width:100%;padding:11px 13px;border:1px solid var(--bd);border-radius:12px;background:#fff;margin:4px 0 10px}
+input:focus{outline:0;border-color:var(--pur)}
+label{font-size:13px;font-weight:600;color:var(--mut)}
+.hint{font-size:12px;color:var(--mut);margin:-4px 2px 12px}.hint.bad{color:var(--red)}
+.err{background:#fdecee;color:var(--red);padding:9px 12px;border-radius:10px;font-size:14px;margin-bottom:12px}
+.pc-n{font-size:18px;color:var(--navy);font-weight:800}
+.pc-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.pc-g>div{background:#f6f4ff;border-radius:14px;padding:10px 12px;min-width:0}
+.pc-g small,.pc-f small{display:block;color:var(--mut);font-size:12px}
+.pc-g b{display:block;color:var(--navy);font-size:16px}.pc-g em{font-style:normal;font-size:12px;color:var(--mut)}
+.pc-f div{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.pc-f span{font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:#eeeafd;color:var(--pur)}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--bd)}.row:last-child{border:0}
+.pill{font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;background:#eef;color:var(--pur)}
+.Active,.Completed{background:#e3f6ea;color:var(--grn)}.Pending,.Paused{background:#fff4dd;color:#b36b00}.Cancelled{background:#fdecee;color:var(--red)}
+.chips{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:8px;margin:6px 0 14px}
+.chips button{border:1.5px solid var(--bd);background:#fff;color:var(--tx);border-radius:14px;padding:10px 4px;font-weight:700;font-size:12.5px;cursor:pointer}
+.chips button.on{background:var(--pur);border-color:var(--pur);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stats div{background:#fff;border:1px solid var(--bd);border-radius:16px;padding:12px}
+.stats small{display:block;color:var(--mut);font-size:12px}.stats b{color:var(--navy);font-size:17px}
+.empty{text-align:center;color:var(--mut);padding:26px 10px}
+.sk{height:120px;border-radius:18px;background:linear-gradient(90deg,#eceefa 25%,#f8f9fe 50%,#eceefa 75%);background-size:200% 100%;animation:sh 1.2s infinite;margin-bottom:12px}@keyframes sh{to{background-position:-200% 0}}
+.modal{position:fixed;inset:0;background:rgba(20,24,63,.5);display:grid;place-items:end center;z-index:20}
+.modal .card{width:100%;max-width:460px;border-radius:22px 22px 0 0;max-height:92vh;overflow:auto;margin:0}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:18px;color:var(--navy)}
+.x{border:0;background:#f1f1f8;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer;color:var(--mut)}
+.sumbox{background:#f6f4ff;border-radius:14px;padding:4px 14px;margin-bottom:10px}
+.note{font-size:13px;color:var(--mut);text-align:center;margin:10px 0}
+.ok{background:#e3f6ea;color:var(--grn);border-radius:14px;padding:16px;text-align:center;font-weight:700;margin-bottom:12px}
+#rzslot{margin:0 0 12px;padding:14px;border-radius:16px;background:#fff;border:1px solid var(--bd);box-shadow:0 4px 18px rgba(20,24,63,.08);text-align:center}
+#rzslot form{margin:0;width:100%}
+#rzslot .razorpay-payment-button{width:100%!important;padding:13px 16px!important;border:0!important;border-radius:12px!important;font-weight:700!important;color:#fff!important;background:linear-gradient(135deg,var(--navy),var(--pur))!important;cursor:pointer}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:12px;z-index:30;max-width:90vw}
+@media(min-width:700px){.modal{place-items:center}.modal .card{border-radius:22px}}
+@media(prefers-reduced-motion:reduce){.sk{animation:none}}
+.Success,.Approved,.Paid{background:#e3f6ea;color:var(--grn)}.Rejected,.Failed{background:#fdecee;color:var(--red)}
+</style></head><body>
+<div class="top"><div class="brand">Wealth<b>Bridge</b></div><div id="who"></div></div>
+<div class="tabs"><button id="t-invest" class="on" onclick="showTab('invest')">Invest</button><button id="t-mine" onclick="showTab('mine')">My Investments</button></div>
+<main id="main"></main>
+<script>
+let TOKEN=null,ME=null,TAB='invest';
+const $=s=>document.querySelector(s),esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const inr=n=>'₹'+Number(n||0).toLocaleString('en-IN'),inr2=n=>'₹'+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fd=d=>d?new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'—';
+const val=id=>$('#'+id).value.trim();
+const GAS_URL='https://script.google.com/macros/s/AKfycbyjveIExT3PTLvlOGarmMkeQ8xoke4kkXud3y2ehGLEg13Sp9GO_UtyGc3hBVz2ddFUnw/exec';
+/* Same API bridge as Index.html: works inside Apps Script and when hosted elsewhere (GitHub) */
+function api(a,p){
+  if(typeof google!=='undefined'&&google&&google.script&&google.script.run)return new Promise(r=>google.script.run.withSuccessHandler(x=>r(x||{ok:false,error:'Empty server response. Please try again.'})).withFailureHandler(e=>r({ok:false,error:e.message})).api(a,TOKEN,p||{}));
+  return fetch(GAS_URL,{method:'POST',redirect:'follow',body:JSON.stringify({action:a,token:TOKEN,payload:p||{}})}).then(r=>r.json()).then(x=>x||{ok:false,error:'Empty server response. Please try again.'}).catch(()=>({ok:false,error:'Network error. Please check your connection and try again.'}));
+}
+async function call(a,p){const r=await api(a,p);if(!r.ok){if(r.error==='SESSION_EXPIRED'){TOKEN=null;ME=null;hdr();toast('Session expired. Please sign in again.')}throw new Error(r.error)}return r.data}
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),3200)}
+function err(m){const e=$('#err');if(e){e.textContent=m;e.hidden=!m}}
+async function act(btn,fn){btn.disabled=true;err('');try{await fn()}catch(e){err(e.message);toast(e.message)}btn.disabled=false}
+function modal(h){const m=document.createElement('div');m.className='modal';m.innerHTML=`<div class="card">${h}</div>`;m.onclick=e=>{if(e.target===m)m.remove()};document.body.append(m);return m}
+const CLOSE=`<button type="button" class="x" aria-label="Close" onclick="this.closest('.modal').remove()">×</button>`;
+
+/* ---------- product helpers (same rules as Index.html) ---------- */
+const IVF=['ONE_TIME','DAILY','EVERY_15_DAYS','MONTHLY','HOLD'],IVL={ONE_TIME:'One-time',DAILY:'Daily',EVERY_15_DAYS:'Every 15 days',MONTHLY:'Monthly',HOLD:'Hold / Lock-in'};
+const ivSort=a=>IVF.filter(f=>(a||[]).includes(f));
+const ivMin=p=>{const m=(p.frequencies||[]).map(f=>Math.max(+p.minAmount||0,+((p.rules||{})[f]||{}).min||0)),lo=m.length?Math.min(...m):0;return lo>0?inr(lo):'Any amount'};
+function ivGrowth(p){let b=null;(p.frequencies||[]).forEach(f=>{((p.rules||{})[f]||{}).rules&&(p.rules[f].rules||[]).forEach(r=>{if(r.on!==false&&+r.pct>0&&(!b||+r.pct>+b.pct))b={pct:+r.pct}})});return b?{a:'Up to '+b.pct+'% a year',b:'Compounded growth'}:{a:'Growth rules apply',b:''}}
+function ivLimits(p,f,L){const c=(p.rules||{})[f]||{};let mn=Math.max(+p.minAmount||0,+c.min||0),mx=+c.max||0;if(f==='HOLD'){const r=(c.rules||[]).find(x=>x.on!==false&&+x.days===L);if(r){if(+r.min)mn=Math.max(mn,+r.min);if(+r.max)mx=mx?Math.min(mx,+r.max):+r.max}}return{mn,mx}}
+
+/* ---------- header / tabs ---------- */
+function hdr(){$('#who').innerHTML=ME?`<span class="pill">${esc(ME.name.split(' ')[0])}</span><button class="lnk" onclick="logout()">Sign out</button>`:`<button class="btn sm" onclick="authModal('login')">Sign in</button>`}
+async function logout(){await api('logout');TOKEN=null;ME=null;hdr();showTab(TAB)}
+function showTab(t){TAB=t;$('#t-invest').classList.toggle('on',t==='invest');$('#t-mine').classList.toggle('on',t==='mine');
+  $('#main').innerHTML='<div class="sk"></div><div class="sk"></div>';
+  (t==='invest'?invest():mine()).catch(e=>{$('#main').innerHTML=`<div class="card empty">${esc(e.message)}<br><br><button class="btn sm" onclick="showTab('${t}')">Try again</button></div>`})}
+
+/* ---------- Invest tab: opens straight on the products ---------- */
+let PS=[];
+async function invest(){
+  PS=await call('pubProducts');
+  $('#main').innerHTML=`<h2>Investment products</h2><p class="sub">Choose a plan and pay securely.</p>${PS.length?PS.map((p,i)=>{const g=ivGrowth(p);return `<div class="card"><div class="pc-n">${esc(p.name)}</div><p class="sub" style="margin:2px 0 0">${esc(p.desc)}</p>
+  <div class="pc-g"><div><small>Minimum investment</small><b>${ivMin(p)}</b></div><div><small>Growth</small><b>${esc(g.a)}</b>${g.b?`<em>${esc(g.b)}</em>`:''}</div>${p.tenureMonths?`<div><small>Plan duration</small><b>${p.tenureMonths} months</b></div>`:''}</div>
+  <div class="pc-f"><small>Available frequencies</small><div>${ivSort(p.frequencies).map(f=>`<span>${IVL[f]}</span>`).join('')}</div></div>
+  <button class="btn full" onclick="openInvest(PS[${i}])">Invest</button></div>`}).join(''):'<div class="card empty">No products are open right now. Please check back soon.</div>'}`;
+}
+function openInvest(p){
+  const fs=ivSort(p.frequencies);if(!fs.length)return toast('No options available right now');
+  let F=fs[0],L=0;
+  const m=modal(`<div class="mh"><b>${esc(p.name)}</b>${CLOSE}</div><div id="err" class="err" hidden></div>
+  <label>Investment amount (₹)</label><input id="am" type="number" inputmode="decimal" min="1" placeholder="Enter amount"><p class="hint" id="lm"></p>
+  <label>Payment frequency</label><div class="chips" id="ff" style="--n:${Math.min(fs.length,3)}">${fs.map(f=>`<button type="button" data-f="${f}">${IVL[f]}</button>`).join('')}</div><div id="hs"></div>
+  <label>Mobile number</label>${ME?`<input value="${esc(ME.mobile)}" disabled>`:`<input id="mb" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number"><p class="hint">Use this same number in the payment form and when you create your account.</p>`}
+  <button class="btn full" id="go">Continue to payment</button>`);
+  const lim=()=>{const{mn,mx}=ivLimits(p,F,L),a=+$('#am').value,l=$('#lm');l.textContent=[mn?'Minimum '+inr(mn):'',mx?'Maximum '+inr(mx):''].filter(Boolean).join(' · ');l.classList.toggle('bad',!!(a&&((mn&&a<mn)||(mx&&a>mx))))};
+  const upd=()=>{
+    m.querySelectorAll('#ff button').forEach(b=>b.classList.toggle('on',b.dataset.f===F));
+    if(F==='HOLD'){const rs=(((p.rules||{}).HOLD||{}).rules||[]).filter(r=>r.on!==false);if(!rs.some(r=>+r.days===L))L=+(rs[0]||{}).days||0;
+      $('#hs').innerHTML=`<label>Hold period</label><div class="chips" id="hf" style="--n:${Math.min(rs.length||1,3)}">${rs.map(r=>`<button type="button" data-d="${r.days}" class="${+r.days===L?'on':''}">${r.days} days · ${r.pct}%</button>`).join('')}</div>`;
+      m.querySelectorAll('#hf button').forEach(b=>b.onclick=()=>{L=+b.dataset.d;upd()})}
+    else{L=0;$('#hs').innerHTML=''}
+    lim()};
+  m.querySelectorAll('#ff button').forEach(b=>b.onclick=()=>{F=b.dataset.f;upd()});
+  $('#am').oninput=lim;upd();
+  $('#go').onclick=e=>act(e.target,async()=>{
+    const b={productId:p.id,frequency:F,amount:$('#am').value,lockDays:L||''};if(!ME)b.mobile=val('mb');
+    const o=await call(ME?'invIntent':'pubIntent',b);m.remove();
+    if(o.mode==='api')return apiPay(b);
+    payStep(o,p.name);
+  });
+}
+/* Pay the next instalment of an existing investment */
+async function payInst(id,name,btn){act(btn,async()=>{const o=await call('invIntent',{invId:id});if(o.mode==='api')return apiPay({invId:id});payStep(o,name)})}
+
+/* ---------- Payment step: Razorpay Payment Button ---------- */
+function payStep(o,name){
+  const m=modal(`<div class="mh"><b>Complete your payment</b>${CLOSE}</div>
+  <div class="sumbox"><div class="row"><span>Plan</span><b>${esc(name)}</b></div><div class="row"><span>Amount to pay</span><b>${inr2(o.amount)}</b></div><div class="row"><span>Mobile number</span><b>${esc(o.mobile)}</b></div></div>
+  <p class="hint" style="margin-top:0">Pay exactly <b>${inr2(o.amount)}</b> and enter mobile <b>${esc(o.mobile)}</b> in the payment form. Your investment starts automatically.</p>
+  <div id="rzslot"></div><div class="note" id="pst">Waiting for your payment…</div>
+  <button class="btn sec full" id="chk" style="font-size:14px;padding:11px">I have paid – check status</button>`);
+  try{$('#rzslot').appendChild(document.createRange().createContextualFragment(o.buttonCode))}catch(e){$('#rzslot').textContent='Payment button could not be loaded.'}
+  let n=0,busy=false;
+  const check=async manual=>{
+    if(busy||!m.isConnected)return;busy=true;
+    const r=await api('pubPayStatus',{intentId:o.intentId});busy=false;
+    if(r.ok&&r.data.status==='Done'){clearInterval(iv);done();return}
+    if(manual)$('#pst').textContent='Payment not received yet. If you have paid, please wait a minute and check again. If you do not have an account yet, create one with this mobile number – your investment will activate automatically.';
+  };
+  const iv=setInterval(()=>{if(!m.isConnected||++n>36)return clearInterval(iv);check(false)},10000);
+  $('#chk').onclick=()=>check(true);
+  function done(){m.querySelector('.card').innerHTML=`<div class="ok">✓ Payment received<br><span style="font-weight:500;font-size:14px">Your investment is now active.</span></div><button class="btn full" id="vw">View my investments</button>`;
+    $('#vw').onclick=()=>{m.remove();TAB='mine';if(ME)showTab('mine');else{showTab('mine');authModal('login','Sign in (or create an account) with mobile '+o.mobile+' to view your investment.')}}}
+}
+
+/* ---------- Fallback when admin runs the Razorpay API mode (logged-in users only) ---------- */
+function loadRzp(){return new Promise((res,rej)=>{if(window.Razorpay)return res();const s=document.createElement('script');s.src='https://checkout.razorpay.com/v1/checkout.js';s.onload=res;s.onerror=()=>rej(new Error('Could not load payment window'));document.head.append(s)})}
+async function apiPay(b){
+  if(!ME){toast('Please sign in to pay');return authModal('login')}
+  try{await loadRzp();const o=b.invId?await call('pay',{invId:b.invId,payWith:'ONLINE'}):await call('invest',Object.assign({payWith:'ONLINE'},b));
+    const r=new Razorpay({key:o.keyId,amount:o.amount,currency:'INR',name:'WealthBridge',order_id:o.orderId,prefill:{name:o.name,email:o.email,contact:o.mobile},theme:{color:'#6b3df0'},
+      handler:async x=>{try{await call('confirmPayment',{txnId:o.txnId,paymentId:x.razorpay_payment_id,signature:x.razorpay_signature});toast('Payment successful');showTab('mine')}catch(e){toast(e.message)}},
+      modal:{ondismiss:()=>api('paymentFailed',{txnId:o.txnId})}});
+    r.on('payment.failed',()=>{api('paymentFailed',{txnId:o.txnId});toast('Payment failed.')});r.open();
+  }catch(e){toast(e.message)}
+}
+
+/* ---------- My Investments ---------- */
+async function mine(){
+  if(!ME){$('#main').innerHTML=`<div class="card empty"><b style="color:var(--navy)">Sign in to see your investments</b><p class="sub" style="margin:6px 0 14px">Use the mobile number you used while paying.</p><button class="btn" onclick="authModal('login')">Sign in</button> <button class="btn sec" onclick="authModal('signup')">Create account</button></div>`;return}
+  try{await call('invSync')}catch(e){}
+  const l=await call('myInvestments'),sum=k=>l.reduce((s,i)=>s+(+i[k]||0),0);
+  $('#main').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><h2>My investments</h2><button class="btn sm sec" onclick="showTab('mine')">↻ Refresh</button></div><p class="sub">Paid just now? Tap Refresh to check for your latest payment.</p>
+  <div class="stats"><div><small>Invested</small><b>${inr(sum('invested'))}</b></div><div><small>Current value</small><b>${inr(sum('balance'))}</b></div><div><small>Growth</small><b>${inr(sum('growth'))}</b></div></div>
+  ${l.length?l.map(i=>`<div class="card"><div class="row" style="padding-top:0"><div><b>${esc(i.product)}</b><br><small style="color:var(--mut)">${inr(i.amount)} · ${esc(i.mode==='HOLD'?'Hold / Lock-in':i.frequency)}</small></div><span class="pill ${esc(i.status)}">${esc(i.status)}</span></div>
+  <div class="row"><span>Invested</span><b>${inr(i.invested)}</b></div><div class="row"><span>Current value</span><b>${inr(i.balance)}</b></div>${i.growth?`<div class="row"><span>Growth earned</span><b>${inr(i.growth)}</b></div>`:''}
+  ${i.total>1?`<div class="row"><span>Payments made</span><b>${i.paid}/${i.total}</b></div>`:''}${i.mode==='HOLD'&&i.unlockDate?`<div class="row"><span>Locked until</span><b>${fd(i.unlockDate)}</b></div>`:''}${i.nextDate?`<div class="row"><span>Next payment due</span><b>${fd(i.nextDate)}</b></div>`:''}
+  <div class="row"><span>Started</span><b>${fd(i.created)}</b></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${i.redeemable>0?`<button class="btn sm sec" onclick="redeemOpt('${esc(i.id)}')">Withdraw</button>`:''}<button class="btn sm sec" onclick="invTx('${esc(i.id)}')">Transaction</button></div>
+  ${['Active','Pending'].includes(i.status)&&i.nextDate?`<button class="btn sm" style="margin-top:10px" onclick="payInst('${esc(i.id)}','${esc(i.product).replace(/'/g,'')}',this)">Pay ${i.status==='Pending'?'now':'next instalment'}</button>`:''}</div>`).join(''):'<div class="card empty">You have no investments yet.<br><br><button class="btn sm" onclick="showTab(\'invest\')">Browse products</button></div>'}`;
+}
+
+/* ---------- Transactions + 3-option Withdraw (added) ---------- */
+async function invTx(id){
+  const m=modal(`<div class="mh"><b>Transactions</b>${CLOSE}</div><div class="empty">Loading…</div>`);
+  try{
+    const d=await call('invTxns',{invId:id}),s=d.summary;
+    m.querySelector('.card').innerHTML=`<div class="mh"><b>Transactions</b>${CLOSE}</div>
+    <div class="sumbox">
+     <div class="row"><span>Total invested</span><b>${inr2(s.invested)}</b></div>
+     <div class="row"><span>Interest earned</span><b style="color:var(--grn)">+${inr2(s.growth)}</b></div>
+     <div class="row"><span>Total withdrawn</span><b style="color:var(--red)">−${inr2(s.withdrawn)}</b></div>
+     <div class="row"><span>Current balance</span><b>${inr2(s.balance)}</b></div>
+     <div class="row"><span>Available to withdraw</span><b>${inr2(s.redeemable)}</b></div></div>
+    ${d.rows.length?d.rows.map(t=>{const cr=t.dir==='CR',rej=['Rejected','Failed'].includes(t.status),c=rej?'var(--mut)':cr?'var(--grn)':'var(--red)';
+      return `<div class="row" style="align-items:flex-start"><div style="min-width:0"><b>${esc(t.desc)}</b><br><small style="color:var(--mut)">${esc(t.type)} · ${fd(t.date)}${t.id?'<br>ID: '+esc(t.id):''}</small></div><div style="text-align:right;white-space:nowrap"><b style="color:${c}">${cr?'+':'−'}${inr2(t.amount)}</b><br><span class="pill ${esc(t.status)}">${esc(t.status)}</span><br><small style="color:var(--mut)">Bal ${inr2(t.bal)}</small></div></div>`}).join(''):'<div class="empty">No transactions yet.</div>'}`;
+  }catch(e){m.remove();toast(e.message)}
+}
+async function redeemOpt(id){
+  const m=modal(`<div class="empty">Loading…</div>`);
+  let w;try{w=await call('invWdInfo',{invId:id})}catch(e){m.remove();toast(e.message);return}
+  let K='CUSTOM';
+  m.querySelector('.card').innerHTML=`<div class="mh"><b>Withdraw</b>${CLOSE}</div><div id="err" class="err" hidden></div>
+  <div class="sumbox"><div class="row"><span>Available (principal + interest)</span><b>${inr2(w.redeemable)}</b></div><div class="row"><span>Interest available</span><b style="color:var(--grn)">${inr2(w.interest)}</b></div></div>
+  <div class="chips" id="wk" style="--n:3"><button type="button" data-k="CUSTOM" class="on">Custom amount</button><button type="button" data-k="INTEREST">Only interest</button><button type="button" data-k="ALL">Full amount</button></div>
+  <label>Amount (₹)</label><input id="am" type="number" inputmode="decimal" placeholder="Enter amount"><p class="hint" id="wi"></p>
+  <button class="btn full" id="go">Request withdrawal</button>`;
+  const pick=k=>{K=k;m.querySelectorAll('#wk button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
+    const a=$('#am');a.disabled=k!=='CUSTOM';a.value=k==='INTEREST'?w.interest:k==='ALL'?w.redeemable:'';
+    $('#wi').textContent=k==='INTEREST'&&!(w.interest>0)?'No interest is available to withdraw yet.':''};
+  m.querySelectorAll('#wk button').forEach(b=>b.onclick=()=>pick(b.dataset.k));
+  $('#go').onclick=e=>act(e.target,async()=>{await call('redeem2',{invId:id,kind:K,amount:$('#am').value});m.remove();toast('Withdrawal request sent');showTab('mine')});
+}
+
+/* ===== Invest = direct Razorpay button (added) – overrides openInvest(); old one kept as fallback ===== */
+const _openInvestOld=openInvest;
+openInvest=async function(p){
+  const m=modal(`<div class="mh"><b>${esc(p.name)}</b>${CLOSE}</div><div id="rzslot"><div class="sub" style="margin:0">Loading…</div></div>`);
+  let pm;
+  try{pm=await call('pubPayBtn')}catch(e){m.remove();toast(e.message);return}
+  if(pm.mode==='api'){m.remove();return _openInvestOld(p)}
+  if(pm.mode!=='button'||!pm.buttonCode){m.remove();toast('Online payments are currently unavailable.');return}
+  const s=$('#rzslot');s.innerHTML='';
+  try{s.appendChild(document.createRange().createContextualFragment(pm.buttonCode))}catch(e){s.textContent='Payment button could not be loaded.'}
+};
+
+/* ---------- Sign in / Create account (same API actions as Index.html) ---------- */
+function authModal(v,msg){
+  const f={
+   login:`<label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><button class="btn full" id="go">Sign in</button><p class="sub" style="margin:12px 0 0"><a href="#" onclick="authModal('reset');return false">Forgot password?</a> · <a href="#" onclick="authModal('signup');return false">Create account</a></p>`,
+   signup:`<label>Full name</label><input id="nm"><label>Mobile number (same as used for payment)</label><input id="mb" inputmode="numeric" maxlength="10"><label>Email</label><input id="em" type="email"><label>Password (8+ characters, letters and numbers)</label><input id="pw" type="password" autocomplete="new-password"><button class="btn full" id="go">Create account</button><p class="sub" style="margin:12px 0 0"><a href="#" onclick="authModal('login');return false">I already have an account</a></p>`,
+   otp:`<p class="sub">Enter the 6-digit code sent to ${esc(authModal.P.email)}.</p><input id="ot" inputmode="numeric" maxlength="6"><button class="btn full" id="go">Verify</button><p class="sub" style="margin:12px 0 0"><a href="#" onclick="api('resendOtp',{email:authModal.P.email});toast('Code sent');return false">Resend code</a></p>`,
+   reset:`<p class="sub">We will email you a code.</p><label>Email</label><input id="em" type="email"><button class="btn full" id="go">Send code</button>`,
+   reset2:`<label>Code from email</label><input id="ot" inputmode="numeric" maxlength="6"><label>New password</label><input id="pw" type="password" autocomplete="new-password"><button class="btn full" id="go">Update password</button>`}[v];
+  const T={login:'Welcome back',signup:'Create your account',otp:'Verify your email',reset:'Reset password',reset2:'Choose a new password'}[v];
+  document.querySelectorAll('.modal').forEach(x=>{if(x.dataset.auth)x.remove()});
+  const m=modal(`<div class="mh"><b>${T}</b>${CLOSE}</div><div id="err" class="err" ${msg?'':'hidden'}>${esc(msg||'')}</div>${f}`);m.dataset.auth='1';
+  $('#go').onclick=e=>act(e.target,async()=>{
+    if(v==='login'){const d=await call('login',{email:val('em'),password:$('#pw').value});if(d.needOtp){authModal.P=d;return authModal('otp')}TOKEN=d.token;ME=d.user;m.remove();hdr();showTab(TAB)}
+    if(v==='signup'){const d=await call('register',{name:val('nm'),mobile:val('mb'),email:val('em'),password:$('#pw').value});authModal.P=d;authModal('otp')}
+    if(v==='otp'){await call('verifyEmail',{email:authModal.P.email,otp:val('ot')});authModal('login','Email verified. Please sign in.')}
+    if(v==='reset'){authModal.P={email:val('em')};await call('requestReset',authModal.P);authModal('reset2')}
+    if(v==='reset2'){await call('resetPassword',{email:authModal.P.email,otp:val('ot'),password:$('#pw').value});authModal('login','Password updated. Please sign in.')}
+  });
+}
+authModal.P={};
+hdr();showTab('invest');
+</script></body></html>
