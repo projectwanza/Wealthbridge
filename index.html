@@ -127,11 +127,25 @@ const inr2=n=>'₹'+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2
 const minOf=p=>{const m=Object.values(p.rules||{}).filter(c=>c.enabled!==false&&+c.min>0).map(c=>+c.min);return m.length?'From '+inr(Math.min(...m)):'Flexible amount'};
 const svg=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 const IC={plus:svg('<path d="M12 5v14M5 12h14"/>'),up:svg('<path d="M12 19V5M6 11l6-6 6 6"/>'),list:svg('<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>')};
+IC.refresh=svg('<path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/>').replace('<svg','<svg width="18" height="18"');
+async function wRefresh(b){
+  if(b.disabled)return;b.disabled=true;
+  const an=b.firstElementChild.animate([{transform:'rotate(0deg)'},{transform:'rotate(360deg)'}],{duration:800,iterations:Infinity});
+  try{
+    const r=await call('walletRefresh');
+    if(r.added>0)toast(inr2(r.added)+' added to your wallet');
+    else if(r.ambiguous)toast('Your mobile number is linked to more than one account. Please contact support.');
+    else if(r.waiting)toast('Payment found. It will be added once your account is verified.');
+    else toast('No new payment found yet. Please try again in a minute.');
+    if(PAGE==='wallet')await wallet();
+  }catch(e){toast(e.message)}
+  an.cancel();b.disabled=false;
+}
 async function wallet(){
  const w=await call('wallet');window._w=w;
  const tiles=[['Total money added',w.added],['Total money withdrawn',w.withdrawn],['Total money invested',w.invested],['Total money received',w.credit],['Total money debited',w.debit],['Reserved for withdrawals',w.reserved]];
  $('#main').innerHTML=`<h2>Wallet</h2><p class="sub">Add money, withdraw and track every rupee.</p>
- <div class="card hero stat" style="margin-bottom:12px"><small>WALLET BALANCE</small><b>${inr2(w.balance)}</b>
+ <div class="card hero stat" style="margin-bottom:12px;position:relative"><button id="wrf" type="button" aria-label="Refresh wallet" title="Refresh wallet" onclick="wRefresh(this)" style="position:absolute;top:12px;right:12px;width:36px;height:36px;padding:0;border-radius:50%;border:1px solid rgba(255,255,255,.32);background:rgba(255,255,255,.16);color:#fff;display:grid;place-items:center;cursor:pointer">${IC.refresh}</button><small>WALLET BALANCE</small><b>${inr2(w.balance)}</b>
   <div class="wbtn"><button onclick="wAdd()">${IC.plus}<span>Add Money</span></button><button onclick="wWd()">${IC.up}<span>Withdraw</span></button><button onclick="wTx()">${IC.list}<span>Transactions</span></button></div></div>
  <div class="grid w3">${tiles.map(x=>`<div class="card stat"><small>${x[0]}</small><b>${inr2(x[1])}</b></div>`).join('')}</div>
  <h3>Withdrawal requests</h3><div class="card">${w.withdrawals.length?w.withdrawals.map(t=>`<div class="row"><div><b>${inr2(t.amount)}</b><br><small style="color:var(--mut)">${fd(t.created)} · ${esc(t.id)}</small></div><span class="pill ${t.status}">${t.status}</span></div>`).join(''):'<div class="empty">No withdrawal requests yet.</div>'}</div>`;
