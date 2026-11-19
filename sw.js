@@ -1,5 +1,5 @@
-const CACHE_NAME = "e-connect-cache-v1";
-const urlsToCache = ["./", "./index.html", "./manifest.json", "./logo.png", "./icon-192.png", "./icon-512.png"];
+const CACHE_NAME = "wealthbridge-cache-v1";
+const urlsToCache = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -19,7 +19,7 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const req = event.request;
-  // Never touch API calls (POST to Apps Script), Razorpay, Drive images or any other site
+  // Never touch API calls (POST to Apps Script), Razorpay, Google Fonts or any other site
   if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return;
 
   // Page navigations: network first, cache only as offline fallback
@@ -35,6 +35,6 @@ self.addEventListener("fetch", (event) => {
     );
     return;
   }
-  // Static files (logo, icons, manifest): cache first
+  // Static files (icons, manifest): cache first
   event.respondWith(caches.match(req).then((r) => r || fetch(req)));
 });
