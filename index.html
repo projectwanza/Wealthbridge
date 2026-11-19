@@ -144,11 +144,27 @@ async function wRefresh(b){
 async function wallet(){
  const w=await call('wallet');window._w=w;
  const tiles=[['Total money added',w.added],['Total money withdrawn',w.withdrawn],['Total money invested',w.invested],['Total money received',w.credit],['Total money debited',w.debit],['Reserved for withdrawals',w.reserved]];
- $('#main').innerHTML=`<h2>Wallet</h2><p class="sub">Add money, withdraw and track every rupee.</p>
+ $('#main').innerHTML=`<h2>Transaction</h2><p class="sub">Add money and track every rupee.</p>
  <div class="card hero stat" style="margin-bottom:12px;position:relative"><button id="wrf" type="button" aria-label="Refresh wallet" title="Refresh wallet" onclick="wRefresh(this)" style="position:absolute;top:12px;right:12px;width:36px;height:36px;padding:0;border-radius:50%;border:1px solid rgba(255,255,255,.32);background:rgba(255,255,255,.16);color:#fff;display:grid;place-items:center;cursor:pointer">${IC.refresh}</button><small>WALLET BALANCE</small><b>${inr2(w.balance)}</b>
-  <div class="wbtn"><button onclick="wAdd()">${IC.plus}<span>Add Money</span></button><button onclick="wWd()">${IC.up}<span>Withdraw</span></button><button onclick="wTx()">${IC.list}<span>Transactions</span></button></div></div>
- <div class="grid w3">${tiles.map(x=>`<div class="card stat"><small>${x[0]}</small><b>${inr2(x[1])}</b></div>`).join('')}</div>
+  <div class="wbtn"><button onclick="wAdd()">${IC.plus}<span>Add Money</span></button></div></div>
+<div class="card" style="margin-bottom:12px"><div class="sw"><span id="swd">Direct</span><label><input type="checkbox" id="swc" checked onchange="txSw(this)"><i></i></label><span id="sww" class="on">Wallet</span></div><div id="tlist" style="margin-top:12px;max-height:420px;overflow:auto"></div></div><div class="grid w3">${tiles.map(x=>`<div class="card stat"><small>${x[0]}</small><b>${inr2(x[1])}</b></div>`).join('')}</div>
  <h3>Withdrawal requests</h3><div class="card">${w.withdrawals.length?w.withdrawals.map(t=>`<div class="row"><div><b>${inr2(t.amount)}</b><br><small style="color:var(--mut)">${fd(t.created)} · ${esc(t.id)}</small></div><span class="pill ${t.status}">${t.status}</span></div>`).join(''):'<div class="empty">No withdrawal requests yet.</div>'}</div>`;
+ txMode();
+}
+/* ===== Wallet / Direct transaction switch (added) ===== */
+let WTM=true,TXK=0;
+function txSw(b){WTM=b.checked;txMode()}
+async function txMode(){
+ if(!document.getElementById('swcss')){const s=document.createElement('style');s.id='swcss';s.textContent='.sw{display:flex;align-items:center;justify-content:center;gap:12px;font-weight:700;color:var(--navy)}.sw span{opacity:.45}.sw span.on{opacity:1;color:var(--pur)}.sw label{position:relative;width:52px;height:28px;margin:0;display:block}.sw input{position:absolute;opacity:0;width:0;height:0;padding:0;border:0;margin:0}.sw i{position:absolute;inset:0;background:#cfd2e6;border-radius:28px;cursor:pointer;transition:.2s}.sw i:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}.sw input:checked+i{background:var(--pur)}.sw input:checked+i:before{transform:translateX(24px)}';document.head.append(s)}
+ const c=$('#swc'),L=$('#tlist');if(!c||!L)return;
+ c.checked=WTM;$('#swd').className=WTM?'':'on';$('#sww').className=WTM?'on':'';
+ const k=++TXK;L.innerHTML='<div class="empty">Loading…</div>';
+ try{
+  const l=await call(WTM?'walletTxns':'directTxns');
+  if(k!==TXK||!$('#tlist'))return;
+  const pe=s=>['Pending','Approved'].includes(s);
+  $('#tlist').innerHTML=l.length?l.map(t=>{const cr=t.dir==='CR',c2=pe(t.status)?'#d98400':cr?'var(--grn)':'var(--red)';return `<div class="row" style="align-items:flex-start"><div style="min-width:0"><b>${esc(t.desc||t.type)}</b><br><small style="color:var(--mut)">${esc(t.type)} · ${fd(t.created)}<br>ID: ${esc(t.id)}</small></div><div style="text-align:right;white-space:nowrap"><b style="color:${c2}">${cr?'+':'−'}${inr2(t.amount)}</b><br><span class="pill ${esc(t.status)}">${esc(t.status)}</span></div></div>`}).join(''):'<div class="empty">No transactions yet.</div>';
+ }catch(e){if(k===TXK&&$('#tlist'))$('#tlist').innerHTML=`<div class="empty">${esc(e.message)}</div>`}
 }
 async function wAdd(){
  if(!document.getElementById('rzcss')){const s=document.createElement('style');s.id='rzcss';s.textContent='#rzslot{margin:0 0 14px;padding:14px;border-radius:16px;background:#fff;border:1px solid var(--bd);box-shadow:0 4px 18px rgba(20,24,63,.08);text-align:center}#rzslot form{margin:0;width:100%}#rzslot .razorpay-payment-button{width:100%!important;max-width:100%;padding:13px 16px!important;border:0!important;border-radius:12px!important;font-weight:700!important;color:#fff!important;background:linear-gradient(135deg,var(--navy),var(--pur))!important;cursor:pointer}';document.head.append(s)}
@@ -189,7 +205,7 @@ function wRender(){
 }
 
 /* ---------- Shell ---------- */
-const NAV=[['dash','⌂','Home'],['prod','✦','Invest'],['wallet','◈','Wallet'],['inv','▤','Mine'],['notif','🔔','Alerts'],['prof','☺','Profile']];
+const NAV=[['dash','⌂','Home'],['prod','✦','Invest'],['wallet','◈','Transaction'],['inv','▤','Mine'],['notif','🔔','Alerts'],['prof','☺','Profile']];
 function shell(){
   $('#app').innerHTML=`<div class="top"><div class="brand">Wealth<b>Bridge</b></div><span class="pill">${esc(ME.name.split(' ')[0])}</span></div><main id="main"></main><nav>${NAV.map(n=>`<a data-p="${n[0]}" onclick="go('${n[0]}')"><i>${n[1]}</i>${n[2]}<em id="b-${n[0]}" hidden></em></a>`).join('')}</nav>`;go('dash');
 }
@@ -326,12 +342,44 @@ async function inv(){
   $('#main').innerHTML=`<h2>My investments</h2>${l.length?l.map(i=>`<div class="card" style="margin-bottom:12px"><div class="row" style="padding-top:0"><div><b>${esc(i.product)}</b><br><small style="color:var(--mut)">${inr(i.amount)} · ${esc(i.frequency)}</small></div><span class="pill ${i.status}">${i.status}</span></div>
    <div class="bar"><i style="width:${Math.min(100,i.paid/i.total*100)}%"></i></div><div class="grid" style="grid-template-columns:repeat(3,1fr);font-size:13px"><div>Paid<br><b>${i.paid}/${i.total}</b></div><div>Pending<br><b>${i.pending}</b></div><div>Failed<br><b>${i.failed}</b></div></div>
    <div class="row"><span>Invested</span><b>${inr(i.invested)}</b></div>${i.growth?`<div class="row"><span>Growth earned</span><b>${inr(i.growth)}</b></div>`:''}${i.mode==='HOLD'&&i.unlockDate&&new Date(i.unlockDate)>new Date()?`<div class="row"><span>Locked until</span><b>${fd(i.unlockDate)}</b></div>`:''}<div class="row"><span>Next date</span><b>${fd(i.nextDate)}</b></div>
-   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${['Active','Pending'].includes(i.status)&&i.nextDate?`<button class="btn sm" onclick="payNow('${i.id}',this)">Pay now</button>`:''}${i.status==='Active'&&i.frequency!=='One-time'?`<button class="btn sm sec" onclick="sub('${i.id}','Pause')">Pause</button>`:''}${i.status==='Paused'?`<button class="btn sm sec" onclick="sub('${i.id}','Resume')">Resume</button>`:''}${['Active','Paused'].includes(i.status)&&i.frequency!=='One-time'?`<button class="btn sm sec" onclick="if(confirm('Cancel this subscription?'))sub('${i.id}','Cancel')">Cancel</button>`:''}${i.redeemable>0?`<button class="btn sm sec" onclick="redeem('${i.id}',${i.redeemable})">Withdraw</button>`:''}</div></div>`).join(''):'<div class="card empty">You have no investments yet.<br><br><button class="btn sm" onclick="go(\'prod\')">Browse products</button></div>'}
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${['Active','Pending'].includes(i.status)&&i.nextDate?`<button class="btn sm" onclick="payNow('${i.id}',this)">Pay now</button>`:''}${i.status==='Active'&&i.frequency!=='One-time'?`<button class="btn sm sec" onclick="sub('${i.id}','Pause')">Pause</button>`:''}${i.status==='Paused'?`<button class="btn sm sec" onclick="sub('${i.id}','Resume')">Resume</button>`:''}${['Active','Paused'].includes(i.status)&&i.frequency!=='One-time'?`<button class="btn sm sec" onclick="if(confirm('Cancel this subscription?'))sub('${i.id}','Cancel')">Cancel</button>`:''}${i.redeemable>0?`<button class="btn sm sec" onclick="redeemOpt('${i.id}')">Withdraw</button>`:''}<button class="btn sm sec" onclick="invTx('${i.id}')">Transaction</button></div></div>`).join(''):'<div class="card empty">You have no investments yet.<br><br><button class="btn sm" onclick="go(\'prod\')">Browse products</button></div>'}
   <h3>Withdrawal requests</h3><div class="card">${rd.length?rd.map(r=>`<div class="row"><div><b>${inr(r.amount)}</b><br><small style="color:var(--mut)">${fd(r.created)} ${esc(r.note)}</small></div><span class="pill ${r.status}">${r.status}</span></div>`).join(''):'<div class="empty">No withdrawal requests.</div>'}</div>`;
 }
 async function payNow(id,b){let wp=true;try{const pm=await call('paymentMode');if(pm.mode==='api')wp=confirm('Pay from your wallet?\n\nOK = Wallet balance\nCancel = UPI / Card / Net Banking')}catch(e){toast(e.message);return}act(b,async()=>{const o=await call('pay',{invId:id,payWith:wp?'WALLET':'ONLINE'});if(o.wallet){toast('Paid from wallet');go('inv')}else checkout(o)})}
 async function sub(id,op){try{await call('setSubscription',{invId:id,op});go('inv')}catch(e){toast(e.message)}}
 function redeem(id,max){const m=modal(`<h3 style="margin-top:0">Withdraw</h3><div id="err" class="err" hidden></div><p class="sub">Available: ${inr(max)}</p><label>Amount (₹)</label><input id="am" type="number" max="${max}"><button class="btn" style="width:100%" id="go">Request withdrawal</button>`);$('#go').onclick=e=>act(e.target,async()=>{await call('redeem',{invId:id,amount:$('#am').value});m.remove();toast('Request sent');go('inv')})}
+/* ===== Investment Transaction + 3-option Withdraw (added) ===== */
+const IVX=`<button type="button" class="iv-x" aria-label="Close" onclick="this.closest('.modal').remove()">×</button>`;
+async function invTx(id){
+  const m=modal(`<div class="iv-hd"><div class="iv-t">Transactions</div>${IVX}</div><div class="empty">Loading…</div>`);
+  try{
+    const d=await call('invTxns',{invId:id}),s=d.summary;
+    m.querySelector('.card').innerHTML=`<div class="iv-hd"><div class="iv-t">Transactions</div>${IVX}</div>
+    <div style="background:#f6f4ff;border-radius:14px;padding:4px 14px;margin-bottom:12px">
+     <div class="row"><span>Total invested</span><b>${inr2(s.invested)}</b></div>
+     <div class="row"><span>Interest earned</span><b style="color:var(--grn)">+${inr2(s.growth)}</b></div>
+     <div class="row"><span>Total withdrawn</span><b style="color:var(--red)">−${inr2(s.withdrawn)}</b></div>
+     <div class="row"><span>Current balance</span><b>${inr2(s.balance)}</b></div>
+     <div class="row"><span>Available to withdraw</span><b>${inr2(s.redeemable)}</b></div></div>
+    ${d.rows.length?d.rows.map(t=>{const cr=t.dir==='CR',rej=['Rejected','Failed'].includes(t.status),c=rej?'var(--mut)':cr?'var(--grn)':'var(--red)';
+      return `<div class="row" style="align-items:flex-start"><div style="min-width:0"><b>${esc(t.desc)}</b><br><small style="color:var(--mut)">${esc(t.type)} · ${fd(t.date)}${t.id?'<br>ID: '+esc(t.id):''}</small></div><div style="text-align:right;white-space:nowrap"><b style="color:${c}">${cr?'+':'−'}${inr2(t.amount)}</b><br><span class="pill ${esc(t.status)}">${esc(t.status)}</span><br><small style="color:var(--mut)">Bal ${inr2(t.bal)}</small></div></div>`}).join(''):'<div class="empty">No transactions yet.</div>'}`;
+  }catch(e){m.remove();toast(e.message)}
+}
+async function redeemOpt(id){
+  const m=modal(`<div class="empty">Loading…</div>`);
+  let w;try{w=await call('invWdInfo',{invId:id})}catch(e){m.remove();toast(e.message);return}
+  let K='CUSTOM';
+  m.querySelector('.card').innerHTML=`<div class="iv-hd"><div class="iv-t">Withdraw</div>${IVX}</div><div id="err" class="err" hidden></div>
+  <div style="background:#f6f4ff;border-radius:14px;padding:4px 14px;margin-bottom:12px"><div class="row"><span>Available (principal + interest)</span><b>${inr2(w.redeemable)}</b></div><div class="row"><span>Interest available</span><b style="color:var(--grn)">${inr2(w.interest)}</b></div></div>
+  <div class="iv-f" id="wk" style="--n:3"><button type="button" data-k="CUSTOM" class="on">Custom amount</button><button type="button" data-k="INTEREST">Only interest</button><button type="button" data-k="ALL">Full amount</button></div>
+  <label>Amount (₹)</label><input id="am" type="number" inputmode="decimal" placeholder="Enter amount"><p class="sub" id="wi"></p>
+  <button class="btn" style="width:100%" id="go">Request withdrawal</button>`;
+  const pick=k=>{K=k;m.querySelectorAll('#wk button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
+    const a=$('#am');a.disabled=k!=='CUSTOM';a.value=k==='INTEREST'?w.interest:k==='ALL'?w.redeemable:'';
+    $('#wi').textContent=k==='INTEREST'&&!(w.interest>0)?'No interest is available to withdraw yet.':''};
+  m.querySelectorAll('#wk button').forEach(b=>b.onclick=()=>pick(b.dataset.k));
+  $('#go').onclick=e=>act(e.target,async()=>{await call('redeem2',{invId:id,kind:K,amount:$('#am').value});m.remove();toast('Withdrawal request sent');go('inv')});
+}
 async function notif(){
   const l=await call('notifications');api('markRead');
   $('#main').innerHTML=`<h2>Notifications</h2><div class="card">${l.length?l.map(n=>`<div class="row" style="align-items:flex-start"><div><b>${esc(n.title)}</b>${n.read?'':' <span class="pill">new</span>'}<br><span class="sub" style="margin:0">${esc(n.msg)}</span></div><small style="color:var(--mut);white-space:nowrap">${fd(n.created)}</small></div>`).join(''):'<div class="empty">You are all caught up.</div>'}</div>`;
