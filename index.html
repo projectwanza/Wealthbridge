@@ -137,13 +137,16 @@ async function wallet(){
  <h3>Withdrawal requests</h3><div class="card">${w.withdrawals.length?w.withdrawals.map(t=>`<div class="row"><div><b>${inr2(t.amount)}</b><br><small style="color:var(--mut)">${fd(t.created)} · ${esc(t.id)}</small></div><span class="pill ${t.status}">${t.status}</span></div>`).join(''):'<div class="empty">No withdrawal requests yet.</div>'}</div>`;
 }
 async function wAdd(){
- let pm;try{pm=await call('paymentMode')}catch(e){toast(e.message);return}
- if(pm.mode==='api')return wAddApi();
- if(pm.mode!=='button'){toast('Online payments are currently unavailable. Please contact support.');return}
- const m=modal(`<h3 style="margin-top:0">Add money</h3><p class="sub">Add money to your wallet securely with Razorpay.</p><button class="btn" style="width:100%" id="rzgo">Pay with Razorpay</button><div id="rzbox" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"></div><p class="sub" style="margin-top:12px">Your wallet is credited after the payment is confirmed.</p>`);
- const box=$('#rzbox');
- try{box.appendChild(document.createRange().createContextualFragment(pm.buttonCode))}catch(e){}
- $('#rzgo').onclick=()=>{const b=box.querySelector('button,input[type=submit]');if(b)b.click();else{box.removeAttribute('style');toast('Loading Razorpay… tap the Razorpay button below.')}};
+ if(!document.getElementById('rzcss')){const s=document.createElement('style');s.id='rzcss';s.textContent='#rzslot{margin:0 0 14px;padding:14px;border-radius:16px;background:#fff;border:1px solid var(--bd);box-shadow:0 4px 18px rgba(20,24,63,.08);text-align:center}#rzslot form{margin:0;width:100%}#rzslot .razorpay-payment-button{width:100%!important;max-width:100%;padding:13px 16px!important;border:0!important;border-radius:12px!important;font-weight:700!important;color:#fff!important;background:linear-gradient(135deg,var(--navy),var(--pur))!important;cursor:pointer}';document.head.append(s)}
+ let slot=document.getElementById('rzslot');
+ if(slot){slot.scrollIntoView({behavior:'smooth',block:'center'});return} // already loading/loaded – never create a second instance
+ slot=document.createElement('div');slot.id='rzslot';slot.innerHTML='<div class="sub" style="margin:0">Loading…</div>';
+ const hero=document.querySelector('#main .hero');if(hero)hero.after(slot);else $('#main').prepend(slot);
+ let pm;try{pm=await call('paymentMode')}catch(e){slot.remove();toast(e.message);return}
+ if(pm.mode==='api'){slot.remove();return wAddApi()}
+ if(pm.mode!=='button'){slot.remove();toast('Online wallet recharge is currently unavailable.');return}
+ slot.innerHTML='';
+ try{slot.appendChild(document.createRange().createContextualFragment(pm.buttonCode))}catch(e){slot.remove();toast('Payment button could not be loaded.')}
 }
 function wAddApi(){
  const m=modal(`<h3 style="margin-top:0">Add money</h3><div id="err" class="err" hidden></div><label>Enter amount (₹)</label><input id="am" type="number" inputmode="decimal" placeholder="e.g. 5000"><label>Payment method</label><select id="pmth"><option value="all">UPI, Card &amp; Net Banking</option><option value="upi">UPI</option><option value="card">Debit / Credit Card</option><option value="netbanking">Net Banking</option></select><button class="btn" style="width:100%" id="go">Continue to payment</button>`);
@@ -263,10 +266,10 @@ function openInvest2(p){
   const cfg=()=>(p.rules||{})[$('#fq').value]||{},HL=()=>+(($('#hd')||{}).value)||0;
   const pv=()=>{};
   const hist=()=>{const f=$('#fq').value,a=+$('#am').value||0,r=a>0?ivHist(p,f,a,HL()):null;let v='₹0.00',g;
-   if(!(a>0))g='<span>Enter an amount to view your projected value.</span>';
+   if(!(a>0))g='';
    else if(!r){v='—';g='<span>Projection currently unavailable.</span>'}
    else{const tot=r.inv+r.g,pc=r.inv>0?(r.g/r.inv*100):0;v=inr2(tot);g=`<b>+${inr2(r.g)} growth · +${pc.toFixed(2)}%</b><span>on ${inr2(r.inv)} invested</span>`}
-   $('#hc').innerHTML=`<div class="pj-l">Your Investment in 3 Years</div><div class="pj-s">Estimated Value</div><div class="pj-v">${v}</div><div class="pj-g">${g}</div><div class="pj-n">Estimate only. Not guaranteed.</div>`};
+   $('#hc').innerHTML=`<div class="pj-l">Your Investment in 3 Years</div><div class="pj-s">Estimated Value</div><div class="pj-v">${v}</div><div class="pj-g">${g}</div>`};
   const lim=()=>{const{mn,mx}=ivLimits(p,$('#fq').value,HL()),a=+$('#am').value,l=$('#lm');
    l.textContent=[mn?'Minimum '+inr(mn):'',mx?'Maximum '+inr(mx):''].filter(Boolean).join(' · ');l.classList.toggle('bad',!!(a&&((mn&&a<mn)||(mx&&a>mx))))};
   const upd=()=>{const f=$('#fq').value,c=cfg(),rs=(c.rules||[]).filter(r=>r.on!==false),n=p.tenureMonths?{DAILY:p.tenureMonths*30,EVERY_15_DAYS:p.tenureMonths*2,MONTHLY:p.tenureMonths}[f]:0;
@@ -282,14 +285,16 @@ function openInvest2(p){
   m.querySelectorAll('#pf button').forEach(b=>b.onclick=()=>{$('#pw').value=b.dataset.v;m.querySelectorAll('#pf button').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-checked',x===b)})});
   $('#am').oninput=()=>{lim();pv();hist()};pick(fs[0]);
   call('wallet').then(w=>{$('#wb').textContent='Wallet balance: '+inr2(w.balance)}).catch(()=>{});
+    $('#sm').style.display='none'; /* hides "You pay once today" text */
     /* Payment-mode rules (added): Button/None mode = wallet only; API mode = wallet + Razorpay */
   Promise.all([call('wallet'),call('paymentMode')]).then(([w,pm])=>{
     const api=pm.mode==='api',on=m.querySelector('#pf [data-v="ONLINE"]'),wl=m.querySelector('#pf [data-v="WALLET"]'),go=$('#go');
     wl.textContent='Pay using Wallet';on.textContent='Pay using Razorpay';
+        if(!api){$('#pf').style.display='none';$('#pf').previousElementSibling.style.display='none';$('#pw').value='WALLET'}
     if(!api){on.style.display='none';$('#pf').style.setProperty('--n',1);$('#pw').value='WALLET'}
     const info=document.createElement('p');info.className='sub';$('#wb').after(info);
     const chk=()=>{const a=+$('#am').value||0,low=a>0&&a>w.balance;
-      info.innerHTML='Investment amount: <b>'+inr2(a)+'</b>'+(low?'<br><span style="color:#c0392b">'+(api?'Insufficient wallet balance. Choose Pay using Razorpay instead.':'Insufficient wallet balance. Add money to your wallet first.')+'</span>':'');
+      info.innerHTML=low?'<span style="color:#c0392b">'+(api?'Insufficient wallet balance. Choose Pay using Razorpay instead.':'Insufficient wallet balance. Add money to your wallet first.')+'</span>':'';
       go.disabled=$('#pw').value==='WALLET'&&low};
     $('#am').addEventListener('input',chk);m.querySelectorAll('#pf button').forEach(b=>b.addEventListener('click',chk));chk();
   }).catch(()=>{});
@@ -328,6 +333,9 @@ async function prof(){
 async function logout(){await api('logout');TOKEN=null;ME=null;authView('login')}
 authView('login');
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
-let _ip=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_ip=e;const b=document.createElement('button');b.id='pwaBtn';b.className='btn sm';b.textContent='Install app';b.style.cssText='position:fixed;right:14px;bottom:84px;z-index:25;box-shadow:0 6px 20px rgba(20,24,63,.25)';b.onclick=()=>{b.remove();_ip.prompt();_ip=null};document.body.append(b)});
+let _ip=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_ip=e;const b=document.createElement('button');b.id='pwaBtn';b.className='btn sm';b.textContent='Install app';b.style.cssText='position:fixed;right:14px;bottom:84px;z-index:25;box-shadow:0 6px 20px rgba(20,24,63,.25)';b.onclick=()=>{b.remove();_ip.prompt();_ip=null};document.body.append(b);pwaShow()});
+/* Install button: only on signed-out screens (login/register/OTP/reset) and Home */
+function pwaShow(){const b=document.getElementById('pwaBtn');if(b)b.style.display=(!TOKEN||PAGE==='dash')?'':'none'}
+new MutationObserver(pwaShow).observe($('#app'),{childList:true,subtree:true});
 window.addEventListener('appinstalled',()=>{const b=document.getElementById('pwaBtn');if(b)b.remove()});
 </script></body></html>
