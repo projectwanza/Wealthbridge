@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en"><head><base target="_top"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WealthBridge</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+:root{--navy:#14183f;--pur:#6b3df0;--grn:#10a24f;--red:#d93b4a;--bg:#f6f7fb;--card:#fff;--tx:#1c2033;--mut:#6b7190;--bd:#e6e8f2}
+*{box-sizing:border-box;margin:0}body{font:15px/1.5 'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);padding-bottom:72px}
+button,input,select{font:inherit}a{color:var(--pur)}
+.brand{font-weight:800;font-size:20px;color:var(--navy)}.brand b{color:var(--pur)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:18px;box-shadow:0 6px 20px rgba(20,24,63,.05)}
+.btn{background:linear-gradient(135deg,var(--navy),var(--pur));color:#fff;border:0;border-radius:12px;padding:11px 18px;font-weight:700;cursor:pointer}
+.btn.sec{background:#eeeafd;color:var(--pur)}.btn.sm{padding:6px 12px;font-size:13px}.btn:disabled{opacity:.5}
+input,select{width:100%;padding:11px 13px;border:1px solid var(--bd);border-radius:12px;background:#fff;margin:4px 0 12px}
+label{font-size:13px;font-weight:600;color:var(--mut)}
+.auth{min-height:100vh;display:grid;place-items:center;padding:20px}.auth .card{width:100%;max-width:400px}
+.auth h2{margin:14px 0 4px}.sub{color:var(--mut);font-size:14px;margin-bottom:16px}
+.err{background:#fdecee;color:var(--red);padding:9px 12px;border-radius:10px;font-size:14px;margin-bottom:12px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:#fff;border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:5}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#fff;border-top:1px solid var(--bd);z-index:6}
+nav a{flex:1;text-align:center;padding:9px 2px;font-size:11px;color:var(--mut);text-decoration:none;cursor:pointer;position:relative}
+nav a i{display:block;font-style:normal;font-size:19px}nav a.on{color:var(--pur);font-weight:700}
+nav a em{position:absolute;top:4px;right:22%;background:var(--red);color:#fff;border-radius:9px;font-size:10px;padding:0 5px;font-style:normal}
+main{padding:16px;max-width:1000px;margin:auto}h3{margin:20px 0 10px;color:var(--navy)}
+.grid{display:grid;gap:12px;grid-template-columns:1fr 1fr}.stat small{color:var(--mut);display:block}.stat b{font-size:20px;color:var(--navy)}
+.hero{background:linear-gradient(135deg,var(--navy),var(--pur));color:#fff;border:0}.hero b{color:#fff;font-size:30px}.hero small{color:#d9d2ff}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--bd)}.row:last-child{border:0}
+.pill{font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;background:#eef;color:var(--pur)}
+.Success,.Active,.Verified,.Approved{background:#e3f6ea;color:var(--grn)}.Failed,.Rejected,.Suspended,.Cancelled{background:#fdecee;color:var(--red)}.Pending,.Paused{background:#fff4dd;color:#b36b00}
+.bar{height:8px;border-radius:6px;background:#eceefa;overflow:hidden;margin:6px 0}.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--pur),var(--grn))}
+.sk{height:70px;border-radius:16px;background:linear-gradient(90deg,#eceefa 25%,#f8f9fe 50%,#eceefa 75%);background-size:200% 100%;animation:sh 1.2s infinite;margin-bottom:12px}@keyframes sh{to{background-position:-200% 0}}
+.empty{text-align:center;color:var(--mut);padding:28px 10px}
+.modal{position:fixed;inset:0;background:rgba(20,24,63,.5);display:grid;place-items:end center;z-index:20}.modal .card{width:100%;max-width:460px;border-radius:22px 22px 0 0;max-height:90vh;overflow:auto}
+.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:12px;z-index:30}
+@media(min-width:900px){body{padding:0 0 0 220px}nav{top:0;bottom:auto;width:220px;right:auto;flex-direction:column;border:0;border-right:1px solid var(--bd);padding:80px 12px}
+nav a{flex:0;text-align:left;padding:12px 14px;border-radius:12px;font-size:15px}nav a i{display:inline;margin-right:10px}nav a.on{background:#eeeafd}nav a em{position:static;margin-left:8px}
+.grid{grid-template-columns:repeat(4,1fr)}.modal{place-items:center}.modal .card{border-radius:22px}.top{padding-left:24px}}
+@media(prefers-reduced-motion:reduce){.sk{animation:none}}
+.Completed,.Paid{background:#e3f6ea;color:var(--grn)}.wbtn{display:flex;gap:8px;margin-top:16px}.wbtn button{flex:1;min-width:0;background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.32);border-radius:12px;padding:10px 6px;font-weight:700;font-size:13px;display:flex;flex-direction:column;gap:4px;align-items:center;cursor:pointer}.wbtn button:hover{background:rgba(255,255,255,.26)}.wbtn svg{width:20px;height:20px}.grid.w3{grid-template-columns:repeat(2,1fr)}.grid.w3 b{font-size:17px}@media(min-width:900px){.grid.w3{grid-template-columns:repeat(3,1fr)}.wbtn{max-width:480px}.wbtn button{flex-direction:row;justify-content:center;gap:8px;padding:11px}}
+/* ===== Invest redesign (added) ===== */
+.pc{margin-bottom:14px;padding:20px;border-radius:20px}
+.pc-n{font-size:18px;color:var(--navy)}
+.pc-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:14px 0}
+.pc-g>div{background:#f6f4ff;border-radius:14px;padding:10px 12px;min-width:0}
+.pc-g small,.pc-f small{display:block;color:var(--mut);font-size:12px}
+.pc-g b{display:block;color:var(--navy);font-size:16px}
+.pc-g em{font-style:normal;font-size:12px;color:var(--mut)}
+.pc-f>div{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.pc-f span{font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:#eeeafd;color:var(--pur)}
+.pc-b{width:100%;margin-top:16px;padding:14px;font-size:16px;box-shadow:0 8px 18px rgba(107,61,240,.3)}
+.modal .card{overflow-x:hidden}
+.iv-hd{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.iv-t{font-size:19px;font-weight:800;color:var(--navy)}
+.iv-x{border:0;background:#f1f1f8;border-radius:50%;width:32px;height:32px;font-size:20px;line-height:1;cursor:pointer;color:var(--mut);flex:none}
+.iv-s{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--navy);margin:6px 0 6px}
+.iv-s i{font-style:normal;width:22px;height:22px;border-radius:50%;background:var(--pur);color:#fff;font-size:12px;display:grid;place-items:center;flex:none}
+.iv-amt{position:relative}
+.iv-amt span{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:800;font-size:20px;color:var(--pur)}
+.iv-amt input{margin:0;padding:14px 14px 14px 36px;font-size:22px;font-weight:800;border:2px solid var(--bd);border-radius:14px}
+.iv-amt input:focus{outline:0;border-color:var(--pur)}
+.iv-h{font-size:12px;color:var(--mut);margin:6px 2px 14px;min-height:16px}.iv-h.bad{color:var(--red)}
+.iv-f{display:grid;grid-template-columns:repeat(var(--n,4),minmax(0,1fr));gap:8px;margin:6px 0 14px}
+.iv-f button{border:1.5px solid var(--bd);background:#fff;color:var(--tx);border-radius:14px;padding:11px 4px;font-weight:700;font-size:12.5px;cursor:pointer;min-width:0;transition:.15s}
+.iv-f button.on{background:var(--pur);border-color:var(--pur);color:#fff;box-shadow:0 6px 14px rgba(107,61,240,.35)}
+.iv-c{background:linear-gradient(160deg,#f6f4ff,#fff);border:1px solid #e3dcff;border-radius:18px;padding:16px;margin:6px 0 12px}
+.iv-c h4{margin:0 0 2px;color:var(--navy);font-size:16px}
+.iv-big{font-size:30px;font-weight:800;color:var(--navy);line-height:1.2;margin:4px 0 8px;word-break:break-word}
+.iv-gp{display:inline-block;background:#e3f6ea;color:var(--grn);font-weight:700;font-size:12px;border-radius:20px;padding:2px 10px;vertical-align:middle}
+.iv-note{font-size:11.5px;color:var(--mut);margin-top:10px}
+.iv-na{background:#fff4dd;color:#8a5200;border-radius:12px;padding:12px;font-weight:700;font-size:14px;margin-top:8px}
+.iv-d{margin:0 0 12px}.iv-d summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--pur);padding:6px 0}
+/* ===== 3-year projection card (added) ===== */
+.pj{background:linear-gradient(135deg,#2a1f7a 0%,#6b3df0 62%,#8b5cf6 100%);color:#fff;border-radius:20px;padding:16px 18px;margin:4px 0 14px;box-shadow:0 10px 24px rgba(107,61,240,.35);overflow:hidden}
+.pj-l{font-size:13px;font-weight:700;opacity:.92}
+.pj-s{font-size:12px;opacity:.75;margin-top:2px}
+.pj-v{font-size:34px;font-weight:800;line-height:1.15;margin:2px 0 6px;word-break:break-word}
+.pj-g{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:12.5px;font-weight:600}
+.pj-g b{background:rgba(255,255,255,.2);border-radius:20px;padding:3px 10px}
+.pj-g span{opacity:.88}
+.pj-n{font-size:10.5px;opacity:.72;margin-top:8px}
+@media(max-width:380px){.pj-v{font-size:28px}}
+</style></head><body>
+<div id="app"></div>
+<script>
+let TOKEN=null,ME=null,PAGE='dash',PEND={};
+const $=s=>document.querySelector(s),inr=n=>'₹'+Number(n||0).toLocaleString('en-IN'),esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fd=d=>d?new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'—';
+const GAS_URL='https://script.google.com/macros/s/AKfycbyjveIExT3PTLvlOGarmMkeQ8xoke4kkXud3y2ehGLEg13Sp9GO_UtyGc3hBVz2ddFUnw/exec';
+function api(a,p){
+  if(typeof google!=='undefined'&&google&&google.script&&google.script.run)return new Promise(r=>google.script.run.withSuccessHandler(x=>r(x||{ok:false,error:'Empty server response. Please try again.'})).withFailureHandler(e=>r({ok:false,error:e.message})).api(a,TOKEN,p||{}));
+  return fetch(GAS_URL,{method:'POST',redirect:'follow',body:JSON.stringify({action:a,token:TOKEN,payload:p||{}})}).then(r=>r.json()).then(x=>x||{ok:false,error:'Empty server response. Please try again.'}).catch(()=>({ok:false,error:'Network error. Please check your connection and try again.'}));
+}
+async function call(a,p){const r=await api(a,p);if(!r.ok){if(r.error==='SESSION_EXPIRED'){TOKEN=null;authView('login','Session expired. Please sign in again.')}throw new Error(r.error)}return r.data}
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),3200)}
+const val=id=>$('#'+id).value.trim();
+function err(m){const e=$('#err');if(e){e.textContent=m;e.hidden=!m}}
+async function act(btn,fn){btn.disabled=true;try{await fn()}catch(e){err(e.message);toast(e.message)}btn.disabled=false}
+
+/* ---------- Auth ---------- */
+function authView(v,msg){
+  const f={
+   login:`<h2>Welcome back</h2><p class="sub">Sign in to your investments.</p><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><button class="btn" style="width:100%" id="go">Sign in</button><p class="sub" style="margin-top:14px"><a href="#" onclick="authView('reset');return false">Forgot password?</a> · <a href="#" onclick="authView('signup');return false">Create account</a></p>`,
+   signup:`<h2>Create your account</h2><p class="sub">Start investing in minutes.</p><label>Full name</label><input id="nm"><label>Mobile number</label><input id="mb" inputmode="numeric" maxlength="10"><label>Email</label><input id="em" type="email"><label>Password (8+ characters, letters and numbers)</label><input id="pw" type="password" autocomplete="new-password"><button class="btn" style="width:100%" id="go">Create account</button><p class="sub" style="margin-top:14px"><a href="#" onclick="authView('login');return false">I already have an account</a></p>`,
+   otp:`<h2>Verify your email</h2><p class="sub">Enter the 6-digit code sent to ${esc(PEND.email)}.</p><input id="ot" inputmode="numeric" maxlength="6"><button class="btn" style="width:100%" id="go">Verify</button><p class="sub" style="margin-top:14px"><a href="#" onclick="api('resendOtp',{email:PEND.email});toast('Code sent');return false">Resend code</a></p>`,
+   reset:`<h2>Reset password</h2><p class="sub">We will email you a code.</p><label>Email</label><input id="em" type="email"><button class="btn" style="width:100%" id="go">Send code</button><p class="sub" style="margin-top:14px"><a href="#" onclick="authView('login');return false">Back to sign in</a></p>`,
+   reset2:`<h2>Choose a new password</h2><label>Code from email</label><input id="ot" inputmode="numeric" maxlength="6"><label>New password</label><input id="pw" type="password" autocomplete="new-password"><button class="btn" style="width:100%" id="go">Update password</button>`}[v];
+  $('#app').innerHTML=`<div class="auth"><div class="card"><div class="brand">Wealth<b>Bridge</b></div><p class="sub" style="margin:0">Invest Smart. Build Your Future.</p><div id="err" class="err" ${msg?'':'hidden'} style="margin-top:12px">${esc(msg||'')}</div>${f}</div></div>`;
+  $('#go').onclick=e=>act(e.target,async()=>{
+    if(v==='login'){const d=await call('login',{email:val('em'),password:$('#pw').value});if(d.needOtp){PEND=d;return authView('otp')}TOKEN=d.token;ME=d.user;shell()}
+    if(v==='signup'){const d=await call('register',{name:val('nm'),mobile:val('mb'),email:val('em'),password:$('#pw').value});PEND=d;authView('otp')}
+    if(v==='otp'){await call('verifyEmail',{email:PEND.email,otp:val('ot')});authView('login');toast('Email verified. Please sign in.')}
+    if(v==='reset'){PEND={email:val('em')};await call('requestReset',PEND);authView('reset2')}
+    if(v==='reset2'){await call('resetPassword',{email:PEND.email,otp:val('ot'),password:$('#pw').value});authView('login');toast('Password updated')}
+  });
+}
+/* ---- Wallet (added) ---- */
+const inr2=n=>'₹'+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const minOf=p=>{const m=Object.values(p.rules||{}).filter(c=>c.enabled!==false&&+c.min>0).map(c=>+c.min);return m.length?'From '+inr(Math.min(...m)):'Flexible amount'};
+const svg=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const IC={plus:svg('<path d="M12 5v14M5 12h14"/>'),up:svg('<path d="M12 19V5M6 11l6-6 6 6"/>'),list:svg('<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>')};
+async function wallet(){
+ const w=await call('wallet');window._w=w;
+ const tiles=[['Total money added',w.added],['Total money withdrawn',w.withdrawn],['Total money invested',w.invested],['Total money received',w.credit],['Total money debited',w.debit],['Reserved for withdrawals',w.reserved]];
+ $('#main').innerHTML=`<h2>Wallet</h2><p class="sub">Add money, withdraw and track every rupee.</p>
+ <div class="card hero stat" style="margin-bottom:12px"><small>WALLET BALANCE</small><b>${inr2(w.balance)}</b>
+  <div class="wbtn"><button onclick="wAdd()">${IC.plus}<span>Add Money</span></button><button onclick="wWd()">${IC.up}<span>Withdraw</span></button><button onclick="wTx()">${IC.list}<span>Transactions</span></button></div></div>
+ <div class="grid w3">${tiles.map(x=>`<div class="card stat"><small>${x[0]}</small><b>${inr2(x[1])}</b></div>`).join('')}</div>
+ <h3>Withdrawal requests</h3><div class="card">${w.withdrawals.length?w.withdrawals.map(t=>`<div class="row"><div><b>${inr2(t.amount)}</b><br><small style="color:var(--mut)">${fd(t.created)} · ${esc(t.id)}</small></div><span class="pill ${t.status}">${t.status}</span></div>`).join(''):'<div class="empty">No withdrawal requests yet.</div>'}</div>`;
+}
+function wAdd(){
+ const m=modal(`<h3 style="margin-top:0">Add money</h3><div id="err" class="err" hidden></div><label>Enter amount (₹)</label><input id="am" type="number" inputmode="decimal" placeholder="e.g. 5000"><label>Payment method</label><select id="pmth"><option value="all">UPI, Card &amp; Net Banking</option><option value="upi">UPI</option><option value="card">Debit / Credit Card</option><option value="netbanking">Net Banking</option></select><button class="btn" style="width:100%" id="go">Continue to payment</button>`);
+ $('#go').onclick=e=>act(e.target,async()=>{const o=await call('walletAdd',{amount:$('#am').value});m.remove();wPay(o,$('#pmth').value)});
+}
+function wPay(o,x){
+ const r=new Razorpay({key:o.keyId,amount:o.amount,currency:'INR',name:'WealthBridge Wallet',order_id:o.orderId,prefill:{name:o.name,email:o.email,contact:o.mobile},theme:{color:'#6b3df0'},
+  method:x==='all'?undefined:{upi:x==='upi',card:x==='card',netbanking:x==='netbanking',wallet:false},
+  handler:async y=>{try{await call('walletConfirm',{txnId:o.txnId,paymentId:y.razorpay_payment_id,signature:y.razorpay_signature});toast('Payment verified. Wallet credited.');wallet()}catch(e){toast(e.message)}},
+  modal:{ondismiss:()=>api('walletFailed',{txnId:o.txnId})}});
+ r.on('payment.failed',()=>{api('walletFailed',{txnId:o.txnId});toast('Payment failed. Nothing was added.')});r.open();
+}
+function wWd(){
+ const w=window._w,m=modal(`<h3 style="margin-top:0">Withdraw money</h3><div id="err" class="err" hidden></div><p class="sub">Available balance: <b>${inr2(w.balance)}</b><br>Limit: ${inr(w.limits.wdMin)} to ${inr(w.limits.wdMax)} per request</p><label>Withdrawal amount (₹)</label><input id="am" type="number" inputmode="decimal"><label>Receive money in</label><select id="wm"><option value="BANK">Bank account${w.bank?' ('+esc(w.bank)+')':''}</option><option value="UPI">UPI ID</option></select><div id="up" hidden><label>UPI ID</label><input id="ui" placeholder="name@bank"></div><button class="btn" style="width:100%" id="go">Submit withdrawal request</button>`);
+ $('#wm').onchange=()=>{$('#up').hidden=$('#wm').value!=='UPI'};
+ $('#go').onclick=e=>act(e.target,async()=>{await call('walletWithdraw',{amount:$('#am').value,method:$('#wm').value,upi:$('#ui').value});m.remove();toast('Withdrawal requested');wallet()});
+}
+async function wTx(){
+ window._wl=await call('walletTxns');
+ $('#main').innerHTML=`<button class="btn sm sec" onclick="wallet()">← Wallet</button><h2 style="margin:12px 0 8px">Transactions</h2><div class="card" style="margin-bottom:12px"><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))"><div><label>Filter</label><select id="wf" onchange="wRender()"><option value="all">All</option><option value="credit">Credit</option><option value="debit">Debit</option><option value="pending">Pending</option><option value="completed">Completed</option></select></div><div><label>From</label><input id="wa" type="date" onchange="wRender()"></div><div><label>To</label><input id="wb" type="date" onchange="wRender()"></div></div></div><div class="card" id="wl"></div>`;wRender();
+}
+function wRender(){
+ const f=$('#wf').value,a=$('#wa').value,b=$('#wb').value,pe=s=>['Pending','Approved'].includes(s);
+ const l=window._wl.filter(t=>{const d=String(t.created).slice(0,10);return(f==='all'||(f==='credit'&&t.dir==='CR')||(f==='debit'&&t.dir==='DR')||(f==='pending'&&pe(t.status))||(f==='completed'&&['Completed','Paid'].includes(t.status)))&&(!a||d>=a)&&(!b||d<=b)});
+ $('#wl').innerHTML=l.length?l.map(t=>{const cr=t.dir==='CR',c=pe(t.status)?'#d98400':cr?'var(--grn)':'var(--red)';return `<div class="row" style="align-items:flex-start"><div style="min-width:0"><b>${esc(t.desc||t.type)}</b><br><small style="color:var(--mut)">${esc(t.type)} · ${fd(t.created)}<br>ID: ${esc(t.id)}</small></div><div style="text-align:right;white-space:nowrap"><b style="color:${c}">${cr?'+':'−'}${inr2(t.amount)}</b><br><span class="pill ${t.status}">${t.status}</span></div></div>`}).join(''):'<div class="empty">No transactions match your filters.</div>';
+}
+
+/* ---------- Shell ---------- */
+const NAV=[['dash','⌂','Home'],['prod','✦','Invest'],['wallet','◈','Wallet'],['inv','▤','Mine'],['notif','🔔','Alerts'],['prof','☺','Profile']];
+function shell(){
+  $('#app').innerHTML=`<div class="top"><div class="brand">Wealth<b>Bridge</b></div><span class="pill">${esc(ME.name.split(' ')[0])}</span></div><main id="main"></main><nav>${NAV.map(n=>`<a data-p="${n[0]}" onclick="go('${n[0]}')"><i>${n[1]}</i>${n[2]}<em id="b-${n[0]}" hidden></em></a>`).join('')}</nav>`;go('dash');
+}
+function go(p){PAGE=p;document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.dataset.p===p));$('#main').innerHTML='<div class="sk"></div><div class="sk"></div><div class="sk"></div>';({dash,prod,wallet,inv,notif,prof})[p]().catch(e=>{$('#main').innerHTML=`<div class="empty">${esc(e.message)}<br><br><button class="btn sm" onclick="go('${p}')">Try again</button></div>`})}
+const tx=t=>`<div class="row"><div><b>${inr(t.amount)}</b><br><small style="color:var(--mut)">${fd(t.created)}</small></div><span class="pill ${t.status}">${t.status}</span></div>`;
+
+async function dash(){
+  const d=await call('dashboard');ME=d.user;const bp=Object.entries(d.byProduct).filter(x=>x[1]>0),mx=Math.max(1,...bp.map(x=>x[1]));
+  if(d.unread){const b=$('#b-notif');b.hidden=false;b.textContent=d.unread}
+  $('#main').innerHTML=`<h2>Hello, ${esc(ME.name.split(' ')[0])}</h2><p class="sub">${ME.kyc!=='Verified'?`KYC status: <span class="pill ${ME.kyc==='Pending'?'Pending':''}">${esc(ME.kyc)}</span> — <a href="#" onclick="go('prof');return false">complete KYC</a> to start investing.`:'Your account is verified.'}</p>
+  <div class="card hero stat" style="margin-bottom:12px"><small>Total invested</small><b>${inr(d.invested)}</b></div>
+  <div class="grid"><div class="card stat"><small>Active</small><b>${d.active}</b></div><div class="card stat"><small>Completed</small><b>${d.completed}</b></div><div class="card stat"><small>Pending payments</small><b>${d.pendingPayments}</b></div><div class="card stat"><small>Unread alerts</small><b>${d.unread}</b></div></div>
+  <h3>Portfolio by product</h3><div class="card">${bp.length?bp.map(([k,v])=>`<div><div class="row" style="border:0;padding:0"><span>${esc(k)}</span><b>${inr(v)}</b></div><div class="bar"><i style="width:${v/mx*100}%"></i></div></div>`).join(''):'<div class="empty">Your portfolio will appear here after your first payment.</div>'}</div>
+  <h3>Recent transactions</h3><div class="card">${d.recent.length?d.recent.map(tx).join(''):'<div class="empty">No transactions yet.</div>'}</div>`;
+}
+async function prod(){
+  const ps=await call('products');window._ps=ps;
+  $('#main').innerHTML=`<h2>Investment products</h2><p class="sub">Choose a plan and how you want to pay.</p>${ps.length?ps.map((p,i)=>{const g=ivGrowth(p);return `<div class="card pc"><b class="pc-n">${esc(p.name)}</b><p class="sub" style="margin:2px 0 0">${esc(p.desc)}</p>
+   <div class="pc-g"><div><small>Minimum investment</small><b>${ivMin(p)}</b></div><div><small>Growth</small><b>${esc(g.a)}</b>${g.b?`<em>${esc(g.b)}</em>`:''}</div>${p.tenureMonths?`<div><small>Plan duration</small><b>${p.tenureMonths} months</b></div>`:''}</div>
+   <div class="pc-f"><small>Available frequencies</small><div>${ivSort(p.frequencies).map(f=>`<span>${IVL[f]}</span>`).join('')}</div></div>
+   <button class="btn pc-b" onclick="openInvest2(window._ps[${i}])">Invest</button></div>`}).join(''):'<div class="empty">No products are open right now. Check back soon.</div>'}`;
+}
+const FL={ONE_TIME:'One-time',DAILY:'Daily',EVERY_15_DAYS:'Every 15 days',MONTHLY:'Monthly',HOLD:'On hold / lock-in'};
+function modal(h){const m=document.createElement('div');m.className='modal';m.innerHTML=`<div class="card">${h}</div>`;m.onclick=e=>{if(e.target===m)m.remove()};document.body.append(m);return m}
+function openInvest(p){
+  const m=modal(`<h3 style="margin-top:0">${esc(p.name)}</h3><div id="err" class="err" hidden></div><label>Payment frequency</label><select id="fq">${p.frequencies.map(f=>`<option value="${f}">${FL[f]}</option>`).join('')}</select><label>Amount per payment (₹)</label><input id="am" type="number" min="1" value="${p.minAmount||''}"><div id="hs"></div><p class="sub" id="sm"></p><div id="rl"></div><label>Pay with</label><select id="pw"><option value="WALLET">Wallet balance</option><option value="ONLINE">UPI / Card / Net Banking</option></select><p class="sub" id="wb"></p><button class="btn" style="width:100%" id="go">Pay and start</button>`);
+  const gA=(c,a,d)=>{const rs=(c.rules||[]).filter(r=>r.on!==false&&d>=+r.days);if(!rs.length)return 0;const r=rs.reduce((x,y)=>+y.days>+x.days?y:x),q=r.pct/100;return Math.round(a*(Math.pow(1+q,d/365)-1)*100)/100};
+  const pv=()=>{const f=$('#fq').value,c=(p.rules||{})[f]||{},rs=(c.rules||[]).filter(r=>r.on!==false),a=+$('#am').value||0;let h='';
+   if(f==='HOLD'){const L=+($('#hd')||{}).value,r=rs.find(x=>+x.days===L);if(r){const g=gA({type:c.type,compound:c.compound,rules:[r]},a,L);h=`<div class="card" style="background:#f6f4ff"><div class="row"><span>Principal</span><b>${inr(a)}</b></div><div class="row"><span>Hold start</span><b>${fd(new Date())}</b></div><div class="row"><span>Withdrawal from</span><b>${fd(Date.now()+L*864e5)}</b></div><div class="row"><span>Growth</span><b>${r.pct}%${c.type==='annual'?' a year':''}</b></div><div class="row"><span>Expected growth</span><b>${inr(g)}</b></div><div class="row"><span>Expected total</span><b>${inr(a+g)}</b></div><small>${c.earlyOn?`Early withdrawal: ${c.earlyCharge||0}% charge, no growth.`:'No withdrawal before the date above.'}</small></div>`}}
+   else if(rs.length)h=`<div class="card" style="background:#f6f4ff"><b>If you withdraw after</b>${rs.map(r=>`<div class="row"><span>${r.days} days (${r.pct}%)</span><b>${inr(a+gA(c,a,+r.days))}</b></div>`).join('')}<small>Each payment counts from its own date.</small></div>`;
+   $('#rl').innerHTML=h};
+  const upd=()=>{const f=$('#fq').value,c=(p.rules||{})[f]||{},rs=(c.rules||[]).filter(r=>r.on!==false),n=p.tenureMonths?{DAILY:p.tenureMonths*30,EVERY_15_DAYS:p.tenureMonths*2,MONTHLY:p.tenureMonths}[f]:0;
+   if(c.min&&+$('#am').value<+c.min){$('#am').value=c.min}$('#hs').innerHTML=f==='HOLD'?`<label>Hold period</label><select id="hd">${rs.map(r=>`<option value="${r.days}">${r.days} days · ${r.pct}%</option>`).join('')}</select>`:'';
+   if($('#hd'))$('#hd').onchange=pv;
+   $('#sm').textContent=f==='ONE_TIME'||f==='HOLD'?'You pay once today.':n?`${n} payments over ${p.tenureMonths} months. First payment is due now.`:'First payment is due now. You can pause or cancel any time.';pv()};
+  $('#fq').onchange=upd;$('#am').oninput=pv;upd();call('wallet').then(w=>{$('#wb').textContent='Wallet balance: '+inr2(w.balance)}).catch(()=>{});
+  $('#go').onclick=e=>act(e.target,async()=>{const o=await call('invest',{productId:p.id,frequency:$('#fq').value,amount:$('#am').value,lockDays:($('#hd')||{}).value,payWith:$('#pw').value});m.remove();if(o.wallet){toast('Paid from wallet');go('inv')}else checkout(o)});
+}
+/* ===== Invest redesign (added) – new popup + helpers. Old openInvest() is left untouched as a fallback. ===== */
+const IVF=['ONE_TIME','DAILY','EVERY_15_DAYS','MONTHLY','HOLD'],IVD=1095;
+const IVL={ONE_TIME:'One-time',DAILY:'Daily',EVERY_15_DAYS:'Every 15 Days',MONTHLY:'Monthly',HOLD:'Hold / Lock-in'};
+const ivSort=a=>IVF.filter(f=>(a||[]).includes(f));
+/* same formula as growthAmt() in Code.gs: highest completed rule only, never summed */
+const ivG=(c,a,d)=>{const rs=(c.rules||[]).filter(r=>r.on!==false&&d>=+r.days);if(!rs.length)return 0;const r=rs.reduce((x,y)=>+y.days>+x.days?y:x),q=r.pct/100;return Math.round(a*(Math.pow(1+q,d/365)-1)*100)/100};
+const ivMin=p=>{const m=(p.frequencies||[]).map(f=>Math.max(+p.minAmount||0,+((p.rules||{})[f]||{}).min||0)),lo=m.length?Math.min(...m):0;return lo>0?inr(lo):'Any amount'};
+function ivGrowth(p){
+  let best=null;
+  (p.frequencies||[]).forEach(f=>{const c=(p.rules||{})[f]||{};(c.rules||[]).forEach(r=>{if(r.on!==false&&+r.pct>0&&(!best||+r.pct>+best.pct))best={pct:+r.pct,days:+r.days,type:c.type}})});
+  if(!best)return{a:'Growth rules apply',b:''};
+  return {a:'Up to '+best.pct+'% a year',b:'Compounded growth'};
+}
+function ivLimits(p,f,L){
+  const c=(p.rules||{})[f]||{};let mn=Math.max(+p.minAmount||0,+c.min||0),mx=+c.max||0;
+  if(f==='HOLD'){const r=(c.rules||[]).find(x=>x.on!==false&&+x.days===L);if(r){if(+r.min)mn=Math.max(mn,+r.min);if(+r.max)mx=mx?Math.min(mx,+r.max):+r.max}}
+  return{mn,mx};
+}
+/* Hypothetical: each instalment is dated separately and gets its own eligible rule. Returns null when no rule applies. */
+function ivHist(p,f,a,L){
+  const c=(p.rules||{})[f]||{},rs=(c.rules||[]).filter(r=>r.on!==false&&+r.days>0);
+  if(!rs.length||!(a>0))return null;
+  if(f==='HOLD'){const r=rs.find(x=>+x.days===L);if(!r||IVD<L)return null;return{n:1,inv:a,g:ivG({type:c.type,compound:c.compound,rules:[r]},a,L)}}
+  const T=new Date();T.setHours(0,0,0,0);const s=new Date(T);s.setDate(s.getDate()-IVD);let hold=[];
+  if(f==='ONE_TIME')hold=[IVD];
+  else{
+    const m=+p.tenureMonths||0,cap=m?{DAILY:m*30,EVERY_15_DAYS:m*2,MONTHLY:m}[f]:Infinity;
+    for(let i=0;i<cap&&i<2000;i++){
+      let x;
+      if(f==='MONTHLY'){x=new Date(s.getFullYear(),s.getMonth()+i,1);x.setDate(Math.min(s.getDate(),new Date(x.getFullYear(),x.getMonth()+1,0).getDate()))}
+      else{x=new Date(s);x.setDate(s.getDate()+i*(f==='DAILY'?1:15))}
+      if(x>=T)break;
+      hold.push(Math.round((T-x)/864e5));
+    }
+  }
+  let g=0,ok=false;hold.forEach(d=>{if(rs.some(r=>d>=+r.days))ok=true;g+=ivG(c,a,d)});
+  return ok?{n:hold.length,inv:Math.round(a*hold.length*100)/100,g:Math.round(g*100)/100}:null;
+}
+function openInvest2(p){
+  const fs=ivSort(p.frequencies);if(!fs.length){toast('No investment options are available right now');return}
+  const m=modal(`<div class="iv-hd"><div class="iv-t">${esc(p.name)}</div><button type="button" class="iv-x" aria-label="Close" onclick="this.closest('.modal').remove()">×</button></div><div id="err" class="err" hidden></div>
+  <div class="iv-s"><i>1</i>Investment Amount</div>
+  <div class="iv-amt"><span>₹</span><input id="am" type="number" inputmode="decimal" min="1" placeholder="Enter Amount"></div><p class="iv-h" id="lm"></p>
+  <div class="iv-s"><i>2</i>Payment Frequency</div>
+  <div class="iv-f" id="ff" role="radiogroup" aria-label="Payment Frequency" style="--n:${Math.min(fs.length,4)}">${fs.map(f=>`<button type="button" role="radio" aria-checked="false" data-f="${f}">${IVL[f]}</button>`).join('')}</div><input type="hidden" id="fq">
+  <div id="hs"></div>
+  <div class="pj" id="hc"></div><span id="rlw" hidden></span>
+  <label>Pay with</label><div class="iv-f" id="pf" style="--n:2"><button type="button" role="radio" data-v="WALLET" class="on" aria-checked="true">Wallet balance</button><button type="button" role="radio" data-v="ONLINE" aria-checked="false">UPI / Card / Net Banking</button></div><input type="hidden" id="pw" value="WALLET">
+  <p class="sub" id="wb"></p><p class="sub" id="sm"></p><button class="btn" style="width:100%" id="go">Pay and start</button>`);
+  const cfg=()=>(p.rules||{})[$('#fq').value]||{},HL=()=>+(($('#hd')||{}).value)||0;
+  const pv=()=>{};
+  const hist=()=>{const f=$('#fq').value,a=+$('#am').value||0,r=a>0?ivHist(p,f,a,HL()):null;let v='₹0.00',g;
+   if(!(a>0))g='<span>Enter an amount to view your projected value.</span>';
+   else if(!r){v='—';g='<span>Projection currently unavailable.</span>'}
+   else{const tot=r.inv+r.g,pc=r.inv>0?(r.g/r.inv*100):0;v=inr2(tot);g=`<b>+${inr2(r.g)} growth · +${pc.toFixed(2)}%</b><span>on ${inr2(r.inv)} invested</span>`}
+   $('#hc').innerHTML=`<div class="pj-l">Your Investment in 3 Years</div><div class="pj-s">Estimated Value</div><div class="pj-v">${v}</div><div class="pj-g">${g}</div><div class="pj-n">Estimate only. Not guaranteed.</div>`};
+  const lim=()=>{const{mn,mx}=ivLimits(p,$('#fq').value,HL()),a=+$('#am').value,l=$('#lm');
+   l.textContent=[mn?'Minimum '+inr(mn):'',mx?'Maximum '+inr(mx):''].filter(Boolean).join(' · ');l.classList.toggle('bad',!!(a&&((mn&&a<mn)||(mx&&a>mx))))};
+  const upd=()=>{const f=$('#fq').value,c=cfg(),rs=(c.rules||[]).filter(r=>r.on!==false),n=p.tenureMonths?{DAILY:p.tenureMonths*30,EVERY_15_DAYS:p.tenureMonths*2,MONTHLY:p.tenureMonths}[f]:0;
+   if(f==='HOLD'){const keep=HL(),cur=rs.some(r=>+r.days===keep)?keep:+(rs[0]||{}).days;
+    $('#hs').innerHTML=`<label>Hold period</label><div class="iv-f" id="hf" style="--n:${Math.min(rs.length||1,3)}">${rs.map(r=>`<button type="button" role="radio" data-d="${r.days}" class="${+r.days===cur?'on':''}" aria-checked="${+r.days===cur}">${r.days} days · ${r.pct}%</button>`).join('')}</div><input type="hidden" id="hd" value="${cur||''}">`;
+    m.querySelectorAll('#hf button').forEach(b=>b.onclick=()=>{$('#hd').value=b.dataset.d;m.querySelectorAll('#hf button').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-checked',x===b)});lim();pv();hist()})}
+   else $('#hs').innerHTML='';
+   $('#rlw').open=f==='HOLD';
+   $('#sm').textContent=f==='ONE_TIME'||f==='HOLD'?'You pay once today.':n?`${n} payments over ${p.tenureMonths} months. First payment is due now.`:'First payment is due now. You can pause or cancel any time.';
+   lim();pv();hist()};
+  const pick=f=>{$('#fq').value=f;m.querySelectorAll('#ff button').forEach(b=>{const o=b.dataset.f===f;b.classList.toggle('on',o);b.setAttribute('aria-checked',o)});upd()};
+  m.querySelectorAll('#ff button').forEach(b=>b.onclick=()=>pick(b.dataset.f));
+  m.querySelectorAll('#pf button').forEach(b=>b.onclick=()=>{$('#pw').value=b.dataset.v;m.querySelectorAll('#pf button').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-checked',x===b)})});
+  $('#am').oninput=()=>{lim();pv();hist()};pick(fs[0]);
+  call('wallet').then(w=>{$('#wb').textContent='Wallet balance: '+inr2(w.balance)}).catch(()=>{});
+  /* identical API call to the old popup – backend unchanged */
+  $('#go').onclick=e=>act(e.target,async()=>{const o=await call('invest',{productId:p.id,frequency:$('#fq').value,amount:$('#am').value,lockDays:($('#hd')||{}).value,payWith:$('#pw').value});m.remove();if(o.wallet){toast('Paid from wallet');go('inv')}else checkout(o)});
+}
+function checkout(o){
+  const r=new Razorpay({key:o.keyId,amount:o.amount,currency:'INR',name:'WealthBridge',order_id:o.orderId,prefill:{name:o.name,email:o.email,contact:o.mobile},theme:{color:'#6b3df0'},
+   handler:async x=>{try{await call('confirmPayment',{txnId:o.txnId,paymentId:x.razorpay_payment_id,signature:x.razorpay_signature});toast('Payment successful');go('inv')}catch(e){toast(e.message)}},
+   modal:{ondismiss:()=>api('paymentFailed',{txnId:o.txnId})}});
+  r.on('payment.failed',()=>{api('paymentFailed',{txnId:o.txnId});toast('Payment failed. You can retry from Mine.')});r.open();
+}
+async function inv(){
+  const [l,rd]=await Promise.all([call('myInvestments'),call('myRedemptions')]);
+  $('#main').innerHTML=`<h2>My investments</h2>${l.length?l.map(i=>`<div class="card" style="margin-bottom:12px"><div class="row" style="padding-top:0"><div><b>${esc(i.product)}</b><br><small style="color:var(--mut)">${inr(i.amount)} · ${esc(i.frequency)}</small></div><span class="pill ${i.status}">${i.status}</span></div>
+   <div class="bar"><i style="width:${Math.min(100,i.paid/i.total*100)}%"></i></div><div class="grid" style="grid-template-columns:repeat(3,1fr);font-size:13px"><div>Paid<br><b>${i.paid}/${i.total}</b></div><div>Pending<br><b>${i.pending}</b></div><div>Failed<br><b>${i.failed}</b></div></div>
+   <div class="row"><span>Invested</span><b>${inr(i.invested)}</b></div>${i.growth?`<div class="row"><span>Growth earned</span><b>${inr(i.growth)}</b></div>`:''}${i.mode==='HOLD'&&i.unlockDate&&new Date(i.unlockDate)>new Date()?`<div class="row"><span>Locked until</span><b>${fd(i.unlockDate)}</b></div>`:''}<div class="row"><span>Next date</span><b>${fd(i.nextDate)}</b></div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${['Active','Pending'].includes(i.status)&&i.nextDate?`<button class="btn sm" onclick="payNow('${i.id}',this)">Pay now</button>`:''}${i.status==='Active'&&i.frequency!=='One-time'?`<button class="btn sm sec" onclick="sub('${i.id}','Pause')">Pause</button>`:''}${i.status==='Paused'?`<button class="btn sm sec" onclick="sub('${i.id}','Resume')">Resume</button>`:''}${['Active','Paused'].includes(i.status)&&i.frequency!=='One-time'?`<button class="btn sm sec" onclick="if(confirm('Cancel this subscription?'))sub('${i.id}','Cancel')">Cancel</button>`:''}${i.redeemable>0?`<button class="btn sm sec" onclick="redeem('${i.id}',${i.redeemable})">Withdraw</button>`:''}</div></div>`).join(''):'<div class="card empty">You have no investments yet.<br><br><button class="btn sm" onclick="go(\'prod\')">Browse products</button></div>'}
+  <h3>Withdrawal requests</h3><div class="card">${rd.length?rd.map(r=>`<div class="row"><div><b>${inr(r.amount)}</b><br><small style="color:var(--mut)">${fd(r.created)} ${esc(r.note)}</small></div><span class="pill ${r.status}">${r.status}</span></div>`).join(''):'<div class="empty">No withdrawal requests.</div>'}</div>`;
+}
+async function payNow(id,b){const wp=confirm('Pay from your wallet?\n\nOK = Wallet balance\nCancel = UPI / Card / Net Banking');act(b,async()=>{const o=await call('pay',{invId:id,payWith:wp?'WALLET':'ONLINE'});if(o.wallet){toast('Paid from wallet');go('inv')}else checkout(o)})}
+async function sub(id,op){try{await call('setSubscription',{invId:id,op});go('inv')}catch(e){toast(e.message)}}
+function redeem(id,max){const m=modal(`<h3 style="margin-top:0">Withdraw</h3><div id="err" class="err" hidden></div><p class="sub">Available: ${inr(max)}</p><label>Amount (₹)</label><input id="am" type="number" max="${max}"><button class="btn" style="width:100%" id="go">Request withdrawal</button>`);$('#go').onclick=e=>act(e.target,async()=>{await call('redeem',{invId:id,amount:$('#am').value});m.remove();toast('Request sent');go('inv')})}
+async function notif(){
+  const l=await call('notifications');api('markRead');
+  $('#main').innerHTML=`<h2>Notifications</h2><div class="card">${l.length?l.map(n=>`<div class="row" style="align-items:flex-start"><div><b>${esc(n.title)}</b>${n.read?'':' <span class="pill">new</span>'}<br><span class="sub" style="margin:0">${esc(n.msg)}</span></div><small style="color:var(--mut);white-space:nowrap">${fd(n.created)}</small></div>`).join(''):'<div class="empty">You are all caught up.</div>'}</div>`;
+}
+async function prof(){
+  ME=await call('me');
+  $('#main').innerHTML=`<h2>Profile</h2><div class="card"><div class="row"><span>Name</span><b>${esc(ME.name)}</b></div><div class="row"><span>Email</span><b>${esc(ME.email)}</b></div><div class="row"><span>Mobile</span><b>${esc(ME.mobile)}</b></div><div class="row"><span>Account</span><span class="pill ${ME.status}">${ME.status}</span></div><div class="row"><span>KYC</span><span class="pill ${ME.kyc}">${ME.kyc}</span></div></div>
+  ${ME.kyc==='Verified'||ME.kyc==='Pending'?`<div class="card" style="margin-top:12px"><b>KYC details</b><div class="row"><span>PAN</span><b>${esc(ME.pan)}</b></div><div class="row"><span>Bank account</span><b>${esc(ME.acct)}</b></div><div class="row"><span>IFSC</span><b>${esc(ME.ifsc)}</b></div></div>`:
+  `<h3>Complete KYC</h3><div class="card"><div id="err" class="err" hidden></div><label>PAN</label><input id="pn" maxlength="10" style="text-transform:uppercase"><label>Bank account number</label><input id="ac" inputmode="numeric"><label>IFSC code</label><input id="if" maxlength="11" style="text-transform:uppercase"><button class="btn" id="go">Submit for verification</button></div>`}
+  <button class="btn sec" style="margin-top:16px" onclick="logout()">Sign out</button>`;
+  const g=$('#go');if(g)g.onclick=e=>act(e.target,async()=>{await call('submitKyc',{pan:val('pn'),acct:val('ac'),ifsc:val('if')});toast('KYC submitted');go('prof')});
+}
+async function logout(){await api('logout');TOKEN=null;ME=null;authView('login')}
+authView('login');
+</script></body></html>
