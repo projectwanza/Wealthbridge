@@ -3,6 +3,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>WealthBridge – Invest</title>
 <meta name="theme-color" content="#14183f">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="WealthBridge">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--navy:#14183f;--pur:#6b3df0;--grn:#10a24f;--red:#d93b4a;--bg:#f6f7fb;--card:#fff;--tx:#1c2033;--mut:#6b7190;--bd:#e6e8f2}
@@ -245,4 +252,18 @@ function authModal(v,msg){
 }
 authModal.P={};
 hdr();showTab('invest');
+
+/* ===== PWA: Install app button (installs the main WealthBridge app = index.html) ===== */
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
+let _pwaPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();_pwaPrompt=e;
+  if(document.getElementById('pwaBtn'))return;
+  const b=document.createElement('button');
+  b.id='pwaBtn';b.className='btn sm';b.textContent='Install app';
+  b.style.cssText='position:fixed;right:14px;bottom:20px;z-index:15;box-shadow:0 6px 20px rgba(20,24,63,.25)';
+  b.onclick=()=>{b.remove();_pwaPrompt.prompt();_pwaPrompt=null};
+  document.body.append(b);
+});
+window.addEventListener('appinstalled',()=>{const b=document.getElementById('pwaBtn');if(b)b.remove()});
 </script></body></html>
