@@ -171,13 +171,14 @@ async function apiPay(b){
     r.on('payment.failed',()=>{api('paymentFailed',{txnId:o.txnId});toast('Payment failed.')});r.open();
   }catch(e){toast(e.message)}
 }
+function goIndex(){try{sessionStorage.setItem('wb_t',TOKEN)}catch(e){}location.href='index.html'}
 
 /* ---------- My Investments ---------- */
 async function mine(){
   if(!ME){$('#main').innerHTML=`<div class="card empty"><b style="color:var(--navy)">Sign in to see your investments</b><p class="sub" style="margin:6px 0 14px">Use the mobile number you used while paying.</p><button class="btn" onclick="authModal('login')">Sign in</button> <button class="btn sec" onclick="authModal('signup')">Create account</button></div>`;return}
   try{await call('invSync')}catch(e){}
   const l=await call('myInvestments'),sum=k=>l.reduce((s,i)=>s+(+i[k]||0),0);
-  $('#main').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><h2>My investments</h2><button class="btn sm sec" onclick="showTab('mine')">↻ Refresh</button></div><p class="sub">Paid just now? Tap Refresh to check for your latest payment.</p>
+  $('#main').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><h2>My investments</h2><div style="display:flex;gap:8px"><button class="btn sm sec" onclick="goIndex()">⇄ Switch</button><button class="btn sm sec" onclick="showTab('mine')">↻ Refresh</button></div></div><p class="sub">Paid just now? Tap Refresh to check for your latest payment.</p>
   <div class="stats"><div><small>Invested</small><b>${inr(sum('invested'))}</b></div><div><small>Current value</small><b>${inr(sum('balance'))}</b></div><div><small>Growth</small><b>${inr(sum('growth'))}</b></div></div>
   ${l.length?l.map(i=>`<div class="card"><div class="row" style="padding-top:0"><div><b>${esc(i.product)}</b><br><small style="color:var(--mut)">${inr(i.amount)} · ${esc(i.mode==='HOLD'?'Hold / Lock-in':i.frequency)}</small></div><span class="pill ${esc(i.status)}">${esc(i.status)}</span></div>
   <div class="row"><span>Invested</span><b>${inr(i.invested)}</b></div><div class="row"><span>Current value</span><b>${inr(i.balance)}</b></div>${i.growth?`<div class="row"><span>Growth earned</span><b>${inr(i.growth)}</b></div>`:''}
