@@ -485,7 +485,10 @@ async function prof(){
     toast('KYC submitted');go('prof')});
 }
 async function logout(){await api('logout');TOKEN=null;ME=null;authView('login')}
-authView('login');
+(function(){let t=null;try{t=sessionStorage.getItem('wb_t');sessionStorage.removeItem('wb_t')}catch(e){}
+ if(!t)return authView('login');
+ $('#app').innerHTML='<div class="sk" style="margin:40px 16px"></div>';
+ TOKEN=t;api('me').then(r=>{if(r&&r.ok){ME=r.data;shell()}else{TOKEN=null;authView('login')}}).catch(()=>{TOKEN=null;authView('login')})})();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
 let _ip=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_ip=e;const b=document.createElement('button');b.id='pwaBtn';b.className='btn sm';b.textContent='Install app';b.style.cssText='position:fixed;right:14px;bottom:84px;z-index:25;box-shadow:0 6px 20px rgba(20,24,63,.25)';b.onclick=()=>{b.remove();_ip.prompt();_ip=null};document.body.append(b);pwaShow()});
 /* Install button: only on signed-out screens (login/register/OTP/reset) and Home */
