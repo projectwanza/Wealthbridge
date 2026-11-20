@@ -1,498 +1,996 @@
-<!DOCTYPE html>
-<html lang="en"><head><base target="_top"><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WealthBridge</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#14183f">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="WealthBridge">
-<link rel="icon" type="image/png" href="icon-192.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<style>
-:root{--navy:#14183f;--pur:#6b3df0;--grn:#10a24f;--red:#d93b4a;--bg:#f6f7fb;--card:#fff;--tx:#1c2033;--mut:#6b7190;--bd:#e6e8f2}
-*{box-sizing:border-box;margin:0}body{font:15px/1.5 'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);padding-bottom:72px}
-button,input,select{font:inherit}a{color:var(--pur)}
-.brand{font-weight:800;font-size:20px;color:var(--navy)}.brand b{color:var(--pur)}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:18px;box-shadow:0 6px 20px rgba(20,24,63,.05)}
-.btn{background:linear-gradient(135deg,var(--navy),var(--pur));color:#fff;border:0;border-radius:12px;padding:11px 18px;font-weight:700;cursor:pointer}
-.btn.sec{background:#eeeafd;color:var(--pur)}.btn.sm{padding:6px 12px;font-size:13px}.btn:disabled{opacity:.5}
-input,select{width:100%;padding:11px 13px;border:1px solid var(--bd);border-radius:12px;background:#fff;margin:4px 0 12px}
-label{font-size:13px;font-weight:600;color:var(--mut)}
-.auth{min-height:100vh;display:grid;place-items:center;padding:20px}.auth .card{width:100%;max-width:400px}
-.auth h2{margin:14px 0 4px}.sub{color:var(--mut);font-size:14px;margin-bottom:16px}
-.err{background:#fdecee;color:var(--red);padding:9px 12px;border-radius:10px;font-size:14px;margin-bottom:12px}
-.top{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:#fff;border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:5}
-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#fff;border-top:1px solid var(--bd);z-index:6}
-nav a{flex:1;text-align:center;padding:9px 2px;font-size:11px;color:var(--mut);text-decoration:none;cursor:pointer;position:relative}
-nav a i{display:block;font-style:normal;font-size:19px}nav a.on{color:var(--pur);font-weight:700}
-nav a em{position:absolute;top:4px;right:22%;background:var(--red);color:#fff;border-radius:9px;font-size:10px;padding:0 5px;font-style:normal}
-main{padding:16px;max-width:1000px;margin:auto}h3{margin:20px 0 10px;color:var(--navy)}
-.grid{display:grid;gap:12px;grid-template-columns:1fr 1fr}.stat small{color:var(--mut);display:block}.stat b{font-size:20px;color:var(--navy)}
-.hero{background:linear-gradient(135deg,var(--navy),var(--pur));color:#fff;border:0}.hero b{color:#fff;font-size:30px}.hero small{color:#d9d2ff}
-.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--bd)}.row:last-child{border:0}
-.pill{font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;background:#eef;color:var(--pur)}
-.Success,.Active,.Verified,.Approved{background:#e3f6ea;color:var(--grn)}.Failed,.Rejected,.Suspended,.Cancelled{background:#fdecee;color:var(--red)}.Pending,.Paused{background:#fff4dd;color:#b36b00}
-.bar{height:8px;border-radius:6px;background:#eceefa;overflow:hidden;margin:6px 0}.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--pur),var(--grn))}
-.sk{height:70px;border-radius:16px;background:linear-gradient(90deg,#eceefa 25%,#f8f9fe 50%,#eceefa 75%);background-size:200% 100%;animation:sh 1.2s infinite;margin-bottom:12px}@keyframes sh{to{background-position:-200% 0}}
-.empty{text-align:center;color:var(--mut);padding:28px 10px}
-.modal{position:fixed;inset:0;background:rgba(20,24,63,.5);display:grid;place-items:end center;z-index:20}.modal .card{width:100%;max-width:460px;border-radius:22px 22px 0 0;max-height:90vh;overflow:auto}
-.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:12px;z-index:30}
-@media(min-width:900px){body{padding:0 0 0 220px}nav{top:0;bottom:auto;width:220px;right:auto;flex-direction:column;border:0;border-right:1px solid var(--bd);padding:80px 12px}
-nav a{flex:0;text-align:left;padding:12px 14px;border-radius:12px;font-size:15px}nav a i{display:inline;margin-right:10px}nav a.on{background:#eeeafd}nav a em{position:static;margin-left:8px}
-.grid{grid-template-columns:repeat(4,1fr)}.modal{place-items:center}.modal .card{border-radius:22px}.top{padding-left:24px}}
-@media(prefers-reduced-motion:reduce){.sk{animation:none}}
-.Completed,.Paid{background:#e3f6ea;color:var(--grn)}.wbtn{display:flex;gap:8px;margin-top:16px}.wbtn button{flex:1;min-width:0;background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.32);border-radius:12px;padding:10px 6px;font-weight:700;font-size:13px;display:flex;flex-direction:column;gap:4px;align-items:center;cursor:pointer}.wbtn button:hover{background:rgba(255,255,255,.26)}.wbtn svg{width:20px;height:20px}.grid.w3{grid-template-columns:repeat(2,1fr)}.grid.w3 b{font-size:17px}@media(min-width:900px){.grid.w3{grid-template-columns:repeat(3,1fr)}.wbtn{max-width:480px}.wbtn button{flex-direction:row;justify-content:center;gap:8px;padding:11px}}
-/* ===== Invest redesign (added) ===== */
-.pc{margin-bottom:14px;padding:20px;border-radius:20px}
-.pc-n{font-size:18px;color:var(--navy)}
-.pc-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:14px 0}
-.pc-g>div{background:#f6f4ff;border-radius:14px;padding:10px 12px;min-width:0}
-.pc-g small,.pc-f small{display:block;color:var(--mut);font-size:12px}
-.pc-g b{display:block;color:var(--navy);font-size:16px}
-.pc-g em{font-style:normal;font-size:12px;color:var(--mut)}
-.pc-f>div{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-.pc-f span{font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:#eeeafd;color:var(--pur)}
-.pc-b{width:100%;margin-top:16px;padding:14px;font-size:16px;box-shadow:0 8px 18px rgba(107,61,240,.3)}
-.modal .card{overflow-x:hidden}
-.iv-hd{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
-.iv-t{font-size:19px;font-weight:800;color:var(--navy)}
-.iv-x{border:0;background:#f1f1f8;border-radius:50%;width:32px;height:32px;font-size:20px;line-height:1;cursor:pointer;color:var(--mut);flex:none}
-.iv-s{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--navy);margin:6px 0 6px}
-.iv-s i{font-style:normal;width:22px;height:22px;border-radius:50%;background:var(--pur);color:#fff;font-size:12px;display:grid;place-items:center;flex:none}
-.iv-amt{position:relative}
-.iv-amt span{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:800;font-size:20px;color:var(--pur)}
-.iv-amt input{margin:0;padding:14px 14px 14px 36px;font-size:22px;font-weight:800;border:2px solid var(--bd);border-radius:14px}
-.iv-amt input:focus{outline:0;border-color:var(--pur)}
-.iv-h{font-size:12px;color:var(--mut);margin:6px 2px 14px;min-height:16px}.iv-h.bad{color:var(--red)}
-.iv-f{display:grid;grid-template-columns:repeat(var(--n,4),minmax(0,1fr));gap:8px;margin:6px 0 14px}
-.iv-f button{border:1.5px solid var(--bd);background:#fff;color:var(--tx);border-radius:14px;padding:11px 4px;font-weight:700;font-size:12.5px;cursor:pointer;min-width:0;transition:.15s}
-.iv-f button.on{background:var(--pur);border-color:var(--pur);color:#fff;box-shadow:0 6px 14px rgba(107,61,240,.35)}
-.iv-c{background:linear-gradient(160deg,#f6f4ff,#fff);border:1px solid #e3dcff;border-radius:18px;padding:16px;margin:6px 0 12px}
-.iv-c h4{margin:0 0 2px;color:var(--navy);font-size:16px}
-.iv-big{font-size:30px;font-weight:800;color:var(--navy);line-height:1.2;margin:4px 0 8px;word-break:break-word}
-.iv-gp{display:inline-block;background:#e3f6ea;color:var(--grn);font-weight:700;font-size:12px;border-radius:20px;padding:2px 10px;vertical-align:middle}
-.iv-note{font-size:11.5px;color:var(--mut);margin-top:10px}
-.iv-na{background:#fff4dd;color:#8a5200;border-radius:12px;padding:12px;font-weight:700;font-size:14px;margin-top:8px}
-.iv-d{margin:0 0 12px}.iv-d summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--pur);padding:6px 0}
-/* ===== 3-year projection card (added) ===== */
-.pj{background:linear-gradient(135deg,#2a1f7a 0%,#6b3df0 62%,#8b5cf6 100%);color:#fff;border-radius:20px;padding:16px 18px;margin:4px 0 14px;box-shadow:0 10px 24px rgba(107,61,240,.35);overflow:hidden}
-.pj-l{font-size:13px;font-weight:700;opacity:.92}
-.pj-s{font-size:12px;opacity:.75;margin-top:2px}
-.pj-v{font-size:34px;font-weight:800;line-height:1.15;margin:2px 0 6px;word-break:break-word}
-.pj-g{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:12.5px;font-weight:600}
-.pj-g b{background:rgba(255,255,255,.2);border-radius:20px;padding:3px 10px}
-.pj-g span{opacity:.88}
-.pj-n{font-size:10.5px;opacity:.72;margin-top:8px}
-@media(max-width:380px){.pj-v{font-size:28px}}
-.kf-h{margin:18px 0 6px;font-weight:800;color:var(--navy);font-size:15px}.kyc-note{font-size:13px;color:var(--mut);margin:0 0 12px}
-.up{display:flex;align-items:center;gap:12px;border:1.5px dashed #cfc7f6;border-radius:14px;padding:12px;margin:4px 0 12px;background:#faf9ff;cursor:pointer}.up.ok{border-style:solid;border-color:#bfe6cd;background:#f3fbf6}.up input{display:none}
-.up .uth{width:46px;height:46px;border-radius:10px;background:#eeeafd;display:grid;place-items:center;font-size:20px;overflow:hidden;flex:none}.up .uth img{width:100%;height:100%;object-fit:cover}
-.up .ut{flex:1;min-width:0}.up .ut b{display:block;font-size:14px;color:var(--navy)}.up .ut small{display:block;color:var(--mut);font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.up .uc{font-size:12px;font-weight:700;color:var(--pur)}
-.kc{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--mut);margin:4px 0 14px}.kc input{width:auto;margin:3px 0 0}
-</style></head><body>
-<div id="app"></div>
-<script>
-let TOKEN=null,ME=null,PAGE='dash',PEND={};
-const $=s=>document.querySelector(s),inr=n=>'₹'+Number(n||0).toLocaleString('en-IN'),esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fd=d=>d?new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'—';
-const GAS_URL='https://script.google.com/macros/s/AKfycbyjveIExT3PTLvlOGarmMkeQ8xoke4kkXud3y2ehGLEg13Sp9GO_UtyGc3hBVz2ddFUnw/exec';
-function api(a,p){
-  if(typeof google!=='undefined'&&google&&google.script&&google.script.run)return new Promise(r=>google.script.run.withSuccessHandler(x=>r(x||{ok:false,error:'Empty server response. Please try again.'})).withFailureHandler(e=>r({ok:false,error:e.message})).api(a,TOKEN,p||{}));
-  return fetch(GAS_URL,{method:'POST',redirect:'follow',body:JSON.stringify({action:a,token:TOKEN,payload:p||{}})}).then(r=>r.json()).then(x=>x||{ok:false,error:'Empty server response. Please try again.'}).catch(()=>({ok:false,error:'Network error. Please check your connection and try again.'}));
-}
-async function call(a,p){const r=await api(a,p);if(!r.ok){if(r.error==='SESSION_EXPIRED'){TOKEN=null;authView('login','Session expired. Please sign in again.')}throw new Error(r.error)}return r.data}
-function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),3200)}
-const val=id=>$('#'+id).value.trim();
-function err(m){const e=$('#err');if(e){e.textContent=m;e.hidden=!m}}
-async function act(btn,fn){btn.disabled=true;try{await fn()}catch(e){err(e.message);toast(e.message)}btn.disabled=false}
+/** WealthBridge – Code.gs
+ * SETUP: 1) Bind script to a Google Sheet. 2) Run setup(). 3) Run createAdmin('you@mail.com','StrongPass1').
+ * 4) Project Settings > Script properties: RZP_KEY_ID, RZP_KEY_SECRET. 5) Run installTriggers(). 6) Deploy as Web App.
+ * Admin panel: <web-app-url>?page=admin */
+const T = {
+  Users: ['id','name','mobile','email','hash','salt','role','status','kyc','pan','acct','ifsc','emailVerified','created','aadhaar','kycDocs'],
+  Products: ['id','name','desc','minAmount','frequencies','tenureMonths','status','created','rules'],
+  Investments: ['id','userId','productId','frequency','amount','totalContribs','paid','failed','nextDate','status','created','mode','lockDays'],
+  Transactions: ['id','userId','invId','amount','status','orderId','paymentId','created'],
+  Redemptions: ['id','userId','invId','amount','status','note','created'],
+  Notifications: ['id','userId','title','msg','read','created']
+};
+const FREQ = { ONE_TIME: 'One-time', DAILY: 'Daily', EVERY_15_DAYS: 'Every 15 days', MONTHLY: 'Monthly', HOLD: 'On hold / lock-in' };
+const PUBLIC = ['register','verifyEmail','resendOtp','login','requestReset','resetPassword'];
 
-/* ---------- Auth ---------- */
-function authView(v,msg){
-  const f={
-   login:`<h2>Welcome back</h2><p class="sub">Sign in to your investments.</p><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><button class="btn" style="width:100%" id="go">Sign in</button><p class="sub" style="margin-top:14px"><a href="#" onclick="authView('reset');return false">Forgot password?</a> · <a href="#" onclick="authView('signup');return false">Create account</a></p>`,
-   signup:`<h2>Create your account</h2><p class="sub">Start investing in minutes.</p><label>Full name</label><input id="nm"><label>Mobile number</label><input id="mb" inputmode="numeric" maxlength="10"><label>Email</label><input id="em" type="email"><label>Password (8+ characters, letters and numbers)</label><input id="pw" type="password" autocomplete="new-password"><button class="btn" style="width:100%" id="go">Create account</button><p class="sub" style="margin-top:14px"><a href="#" onclick="authView('login');return false">I already have an account</a></p>`,
-   otp:`<h2>Verify your email</h2><p class="sub">Enter the 6-digit code sent to ${esc(PEND.email)}.</p><input id="ot" inputmode="numeric" maxlength="6"><button class="btn" style="width:100%" id="go">Verify</button><p class="sub" style="margin-top:14px"><a href="#" onclick="api('resendOtp',{email:PEND.email});toast('Code sent');return false">Resend code</a></p>`,
-   reset:`<h2>Reset password</h2><p class="sub">We will email you a code.</p><label>Email</label><input id="em" type="email"><button class="btn" style="width:100%" id="go">Send code</button><p class="sub" style="margin-top:14px"><a href="#" onclick="authView('login');return false">Back to sign in</a></p>`,
-   reset2:`<h2>Choose a new password</h2><label>Code from email</label><input id="ot" inputmode="numeric" maxlength="6"><label>New password</label><input id="pw" type="password" autocomplete="new-password"><button class="btn" style="width:100%" id="go">Update password</button>`}[v];
-  $('#app').innerHTML=`<div class="auth"><div class="card"><div class="brand">Wealth<b>Bridge</b></div><p class="sub" style="margin:0">Invest Smart. Build Your Future.</p><div id="err" class="err" ${msg?'':'hidden'} style="margin-top:12px">${esc(msg||'')}</div>${f}</div></div>`;
-  $('#go').onclick=e=>act(e.target,async()=>{
-    if(v==='login'){const d=await call('login',{email:val('em'),password:$('#pw').value});if(d.needOtp){PEND=d;return authView('otp')}TOKEN=d.token;ME=d.user;shell()}
-    if(v==='signup'){const d=await call('register',{name:val('nm'),mobile:val('mb'),email:val('em'),password:$('#pw').value});PEND=d;authView('otp')}
-    if(v==='otp'){await call('verifyEmail',{email:PEND.email,otp:val('ot')});authView('login');toast('Email verified. Please sign in.')}
-    if(v==='reset'){PEND={email:val('em')};await call('requestReset',PEND);authView('reset2')}
-    if(v==='reset2'){await call('resetPassword',{email:PEND.email,otp:val('ot'),password:$('#pw').value});authView('login');toast('Password updated')}
+function doGet(e) {
+  const pg = e && e.parameter && e.parameter.page;
+  const page = pg === 'admin' ? 'Admin' : pg === 'invest' ? 'Index1' : 'Index';
+  return HtmlService.createHtmlOutputFromFile(page).setTitle('WealthBridge')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+
+/* API endpoint for the GitHub-hosted user panel (Index.html). Admin actions are NOT available here. */
+function doPost(e) {
+  let out;
+  try {
+    const b = JSON.parse((e && e.postData && e.postData.contents) || '{}'), action = String(b.action || '');
+    if (!action || action.indexOf('adm_') === 0) out = { ok: false, error: 'Not available here' };
+    else out = api(action, b.token || null, b.payload || {});
+  } catch (err) { out = { ok: false, error: 'Bad request' }; }
+  return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
+}
+
+/* ---------- Setup ---------- */
+function setup() {
+  const ss = SpreadsheetApp.getActive();
+  Object.keys(T).forEach(n => {
+    const s = ss.getSheetByName(n) || ss.insertSheet(n);
+    s.getRange(1, 1, 1, T[n].length).setValues([T[n]]).setFontWeight('bold');
+    s.setFrozenRows(1);
+    T[n].forEach((h, i) => { if (['created','nextDate','mobile','pan','acct','ifsc','aadhaar'].includes(h)) s.getRange(1, i + 1, s.getMaxRows(), 1).setNumberFormat('@'); });
   });
 }
-/* ---- Wallet (added) ---- */
-const inr2=n=>'₹'+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
-const minOf=p=>{const m=Object.values(p.rules||{}).filter(c=>c.enabled!==false&&+c.min>0).map(c=>+c.min);return m.length?'From '+inr(Math.min(...m)):'Flexible amount'};
-const svg=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
-const IC={plus:svg('<path d="M12 5v14M5 12h14"/>'),up:svg('<path d="M12 19V5M6 11l6-6 6 6"/>'),list:svg('<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>')};
-IC.refresh=svg('<path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/>').replace('<svg','<svg width="18" height="18"');
-async function wRefresh(b){
-  if(b.disabled)return;b.disabled=true;
-  const an=b.firstElementChild.animate([{transform:'rotate(0deg)'},{transform:'rotate(360deg)'}],{duration:800,iterations:Infinity});
-  try{
-    const r=await call('walletRefresh');
-    if(r.added>0)toast(inr2(r.added)+' added to your wallet');
-    else if(r.ambiguous)toast('Your mobile number is linked to more than one account. Please contact support.');
-    else if(r.waiting)toast('Payment found. It will be added once your account is verified.');
-    else toast('No new payment found yet. Please try again in a minute.');
-    if(PAGE==='wallet')await wallet();
-  }catch(e){toast(e.message)}
-  an.cancel();b.disabled=false;
+function createAdmin(email, password) {
+  const salt = Utilities.getUuid();
+  add('Users', { name: 'Admin', mobile: '', email: email.toLowerCase(), hash: hashPw(password, salt), salt, role: 'admin', status: 'Active', kyc: 'Verified', emailVerified: true });
 }
-async function wallet(){
- const w=await call('wallet');window._w=w;
- const tiles=[['Total money added',w.added],['Total money withdrawn',w.withdrawn],['Total money invested',w.invested],['Total money received',w.credit],['Total money debited',w.debit],['Reserved for withdrawals',w.reserved]];
- $('#main').innerHTML=`<h2>Transaction</h2><p class="sub">Add money and track every rupee.</p>
- <div class="card hero stat" style="margin-bottom:12px;position:relative"><button id="wrf" type="button" aria-label="Refresh wallet" title="Refresh wallet" onclick="wRefresh(this)" style="position:absolute;top:12px;right:12px;width:36px;height:36px;padding:0;border-radius:50%;border:1px solid rgba(255,255,255,.32);background:rgba(255,255,255,.16);color:#fff;display:grid;place-items:center;cursor:pointer">${IC.refresh}</button><small>WALLET BALANCE</small><b>${inr2(w.balance)}</b>
-  <div class="wbtn"><button onclick="wAdd()">${IC.plus}<span>Add Money</span></button></div></div>
-<div class="card" style="margin-bottom:12px"><div class="sw"><span id="swd">Direct</span><label><input type="checkbox" id="swc" checked onchange="txSw(this)"><i></i></label><span id="sww" class="on">Wallet</span></div><div id="tlist" style="margin-top:12px;max-height:420px;overflow:auto"></div></div><div class="grid w3">${tiles.map(x=>`<div class="card stat"><small>${x[0]}</small><b>${inr2(x[1])}</b></div>`).join('')}</div>
- <h3>Withdrawal requests</h3><div class="card">${w.withdrawals.length?w.withdrawals.map(t=>`<div class="row"><div><b>${inr2(t.amount)}</b><br><small style="color:var(--mut)">${fd(t.created)} · ${esc(t.id)}</small></div><span class="pill ${t.status}">${t.status}</span></div>`).join(''):'<div class="empty">No withdrawal requests yet.</div>'}</div>`;
- txMode();
+function installTriggers() {
+  ScriptApp.getProjectTriggers().forEach(t => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger('dailyJob').timeBased().everyDays(1).atHour(8).create();
 }
-/* ===== Wallet / Direct transaction switch (added) ===== */
-let WTM=true,TXK=0;
-function txSw(b){WTM=b.checked;txMode()}
-async function txMode(){
- if(!document.getElementById('swcss')){const s=document.createElement('style');s.id='swcss';s.textContent='.sw{display:flex;align-items:center;justify-content:center;gap:12px;font-weight:700;color:var(--navy)}.sw span{opacity:.45}.sw span.on{opacity:1;color:var(--pur)}.sw label{position:relative;width:52px;height:28px;margin:0;display:block}.sw input{position:absolute;opacity:0;width:0;height:0;padding:0;border:0;margin:0}.sw i{position:absolute;inset:0;background:#cfd2e6;border-radius:28px;cursor:pointer;transition:.2s}.sw i:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}.sw input:checked+i{background:var(--pur)}.sw input:checked+i:before{transform:translateX(24px)}';document.head.append(s)}
- const c=$('#swc'),L=$('#tlist');if(!c||!L)return;
- c.checked=WTM;$('#swd').className=WTM?'':'on';$('#sww').className=WTM?'on':'';
- const k=++TXK;L.innerHTML='<div class="empty">Loading…</div>';
- try{
-  const l=await call(WTM?'walletTxns':'directTxns');
-  if(k!==TXK||!$('#tlist'))return;
-  const pe=s=>['Pending','Approved'].includes(s);
-  $('#tlist').innerHTML=l.length?l.map(t=>{const cr=t.dir==='CR',c2=pe(t.status)?'#d98400':cr?'var(--grn)':'var(--red)';return `<div class="row" style="align-items:flex-start"><div style="min-width:0"><b>${esc(t.desc||t.type)}</b><br><small style="color:var(--mut)">${esc(t.type)} · ${fd(t.created)}<br>ID: ${esc(t.id)}</small></div><div style="text-align:right;white-space:nowrap"><b style="color:${c2}">${cr?'+':'−'}${inr2(t.amount)}</b><br><span class="pill ${esc(t.status)}">${esc(t.status)}</span></div></div>`}).join(''):'<div class="empty">No transactions yet.</div>';
- }catch(e){if(k===TXK&&$('#tlist'))$('#tlist').innerHTML=`<div class="empty">${esc(e.message)}</div>`}
+
+/* ---------- DB helpers ---------- */
+const sh = n => SpreadsheetApp.getActive().getSheetByName(n);
+function all(n) {
+  const v = sh(n).getDataRange().getValues(), h = v.shift();
+  return v.filter(r => r[0] !== '').map(r => Object.fromEntries(h.map((k, i) => [k, r[i]])));
 }
-async function wAdd(){
- if(!document.getElementById('rzcss')){const s=document.createElement('style');s.id='rzcss';s.textContent='#rzslot{margin:0 0 14px;padding:14px;border-radius:16px;background:#fff;border:1px solid var(--bd);box-shadow:0 4px 18px rgba(20,24,63,.08);text-align:center}#rzslot form{margin:0;width:100%}#rzslot .razorpay-payment-button{width:100%!important;max-width:100%;padding:13px 16px!important;border:0!important;border-radius:12px!important;font-weight:700!important;color:#fff!important;background:linear-gradient(135deg,var(--navy),var(--pur))!important;cursor:pointer}';document.head.append(s)}
- let slot=document.getElementById('rzslot');
- if(slot){slot.scrollIntoView({behavior:'smooth',block:'center'});return} // already loading/loaded – never create a second instance
- slot=document.createElement('div');slot.id='rzslot';slot.innerHTML='<div class="sub" style="margin:0">Loading…</div>';
- const hero=document.querySelector('#main .hero');if(hero)hero.after(slot);else $('#main').prepend(slot);
- let pm;try{pm=await call('paymentMode')}catch(e){slot.remove();toast(e.message);return}
- if(pm.mode==='api'){slot.remove();return wAddApi()}
- if(pm.mode!=='button'){slot.remove();toast('Online wallet recharge is currently unavailable.');return}
- slot.innerHTML='';
- try{slot.appendChild(document.createRange().createContextualFragment(pm.buttonCode))}catch(e){slot.remove();toast('Payment button could not be loaded.')}
+function add(n, o) {
+  o.id = o.id || Utilities.getUuid();
+  o.created = o.created || new Date().toISOString();
+  sh(n).appendRow(T[n].map(k => o[k] === undefined ? '' : o[k]));
+  return o;
 }
-function wAddApi(){
- const m=modal(`<h3 style="margin-top:0">Add money</h3><div id="err" class="err" hidden></div><label>Enter amount (₹)</label><input id="am" type="number" inputmode="decimal" placeholder="e.g. 5000"><label>Payment method</label><select id="pmth"><option value="all">UPI, Card &amp; Net Banking</option><option value="upi">UPI</option><option value="card">Debit / Credit Card</option><option value="netbanking">Net Banking</option></select><button class="btn" style="width:100%" id="go">Continue to payment</button>`);
- $('#go').onclick=e=>act(e.target,async()=>{const o=await call('walletAdd',{amount:$('#am').value});m.remove();wPay(o,$('#pmth').value)});
-}
-function wPay(o,x){
- const r=new Razorpay({key:o.keyId,amount:o.amount,currency:'INR',name:'WealthBridge Wallet',order_id:o.orderId,prefill:{name:o.name,email:o.email,contact:o.mobile},theme:{color:'#6b3df0'},
-  method:x==='all'?undefined:{upi:x==='upi',card:x==='card',netbanking:x==='netbanking',wallet:false},
-  handler:async y=>{try{await call('walletConfirm',{txnId:o.txnId,paymentId:y.razorpay_payment_id,signature:y.razorpay_signature});toast('Payment verified. Wallet credited.');wallet()}catch(e){toast(e.message)}},
-  modal:{ondismiss:()=>api('walletFailed',{txnId:o.txnId})}});
- r.on('payment.failed',()=>{api('walletFailed',{txnId:o.txnId});toast('Payment failed. Nothing was added.')});r.open();
-}
-function wWd(){
- const w=window._w,m=modal(`<h3 style="margin-top:0">Withdraw money</h3><div id="err" class="err" hidden></div><p class="sub">Available balance: <b>${inr2(w.balance)}</b><br>Limit: ${inr(w.limits.wdMin)} to ${inr(w.limits.wdMax)} per request</p><label>Withdrawal amount (₹)</label><input id="am" type="number" inputmode="decimal"><label>Receive money in</label><select id="wm"><option value="BANK">Bank account${w.bank?' ('+esc(w.bank)+')':''}</option><option value="UPI">UPI ID</option></select><div id="up" hidden><label>UPI ID</label><input id="ui" placeholder="name@bank"></div><button class="btn" style="width:100%" id="go">Submit withdrawal request</button>`);
- $('#wm').onchange=()=>{$('#up').hidden=$('#wm').value!=='UPI'};
- $('#go').onclick=e=>act(e.target,async()=>{await call('walletWithdraw',{amount:$('#am').value,method:$('#wm').value,upi:$('#ui').value});m.remove();toast('Withdrawal requested');wallet()});
-}
-async function wTx(){
- window._wl=await call('walletTxns');
- $('#main').innerHTML=`<button class="btn sm sec" onclick="wallet()">← Wallet</button><h2 style="margin:12px 0 8px">Transactions</h2><div class="card" style="margin-bottom:12px"><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))"><div><label>Filter</label><select id="wf" onchange="wRender()"><option value="all">All</option><option value="credit">Credit</option><option value="debit">Debit</option><option value="pending">Pending</option><option value="completed">Completed</option></select></div><div><label>From</label><input id="wa" type="date" onchange="wRender()"></div><div><label>To</label><input id="wb" type="date" onchange="wRender()"></div></div></div><div class="card" id="wl"></div>`;wRender();
-}
-function wRender(){
- const f=$('#wf').value,a=$('#wa').value,b=$('#wb').value,pe=s=>['Pending','Approved'].includes(s);
- const l=window._wl.filter(t=>{const d=String(t.created).slice(0,10);return(f==='all'||(f==='credit'&&t.dir==='CR')||(f==='debit'&&t.dir==='DR')||(f==='pending'&&pe(t.status))||(f==='completed'&&['Completed','Paid'].includes(t.status)))&&(!a||d>=a)&&(!b||d<=b)});
- $('#wl').innerHTML=l.length?l.map(t=>{const cr=t.dir==='CR',c=pe(t.status)?'#d98400':cr?'var(--grn)':'var(--red)';return `<div class="row" style="align-items:flex-start"><div style="min-width:0"><b>${esc(t.desc||t.type)}</b><br><small style="color:var(--mut)">${esc(t.type)} · ${fd(t.created)}<br>ID: ${esc(t.id)}</small></div><div style="text-align:right;white-space:nowrap"><b style="color:${c}">${cr?'+':'−'}${inr2(t.amount)}</b><br><span class="pill ${t.status}">${t.status}</span></div></div>`}).join(''):'<div class="empty">No transactions match your filters.</div>';
-}
-/* ===== Direct / Wallet switch at top (added) – overrides wallet() page view ===== */
-let TXM='W',TXK2=0;
-const txRow=t=>{const cr=t.dir==='CR',pe=['Pending','Approved'].includes(t.status),bad=['Rejected','Failed'].includes(t.status),c=bad?'var(--mut)':pe?'#d98400':cr?'var(--grn)':'var(--red)';
- return `<div class="row" style="align-items:flex-start"><div style="min-width:0"><b>${esc(t.desc||t.type)}</b><br><small style="color:var(--mut)">${esc(t.type)} · ${fd(t.created)}${t.id?'<br>ID: '+esc(t.id):''}</small></div><div style="text-align:right;white-space:nowrap"><b style="color:${c}">${cr?'+':'−'}${inr2(t.amount)}</b><br><span class="pill ${esc(t.status)}">${esc(t.status)}</span><br><small style="color:var(--mut)">Balance ${inr2(t.bal)}</small></div></div>`};
-function txFlip(b){TXM=b.checked?'W':'D';txPaint()}
-async function txPaint(){
- const box=$('#tw');if(!box)return;
- const W=TXM==='W',k=++TXK2;
- $('#swd').className=W?'':'on';$('#sww').className=W?'on':'';
- box.innerHTML='<div class="sk"></div><div class="sk"></div>';
- try{
-  if(W){
-   const [w,l]=await Promise.all([call('wallet'),call('walletLedger')]);
-   if(k!==TXK2||!$('#tw'))return;
-   window._w=w;
-   const tiles=[['Total money added',w.added],['Total money withdrawn',w.withdrawn],['Total money invested',w.invested],['Total money received',w.credit],['Total money debited',w.debit],['Reserved for withdrawals',w.reserved]];
-   box.innerHTML=`<h2>Transaction</h2><p class="sub">Wallet balance and every rupee in and out.</p>
-   <div class="card hero stat" style="margin-bottom:12px;position:relative"><button id="wrf" type="button" aria-label="Refresh wallet" title="Refresh wallet" onclick="wRefresh(this)" style="position:absolute;top:12px;right:12px;width:36px;height:36px;padding:0;border-radius:50%;border:1px solid rgba(255,255,255,.32);background:rgba(255,255,255,.16);color:#fff;display:grid;place-items:center;cursor:pointer">${IC.refresh}</button><small>WALLET BALANCE</small><b>${inr2(w.balance)}</b>
-    <div class="wbtn"><button onclick="wAdd()">${IC.plus}<span>Add Money</span></button></div></div>
-   <div class="grid w3">${tiles.map(x=>`<div class="card stat"><small>${x[0]}</small><b>${inr2(x[1])}</b></div>`).join('')}</div>
-   <h3>Wallet transactions</h3><div class="card" style="max-height:480px;overflow:auto">${l.length?l.map(txRow).join(''):'<div class="empty">No wallet transactions yet.</div>'}</div>
-   <h3>Withdrawal requests</h3><div class="card">${w.withdrawals.length?w.withdrawals.map(t=>`<div class="row"><div><b>${inr2(t.amount)}</b><br><small style="color:var(--mut)">${fd(t.created)} · ${esc(t.id)}</small></div><span class="pill ${t.status}">${t.status}</span></div>`).join(''):'<div class="empty">No withdrawal requests yet.</div>'}</div>`;
-  }else{
-   const d=await call('directView'),s=d.summary;
-   if(k!==TXK2||!$('#tw'))return;
-   const tiles=[['Total invested',s.invested],['Interest earned',s.interest],['Total withdrawn',s.withdrawn],['Available to withdraw',s.redeemable]];
-   box.innerHTML=`<h2>Transaction</h2><p class="sub">All investments: payments, interest and withdrawals.</p>
-   <div class="card hero stat" style="margin-bottom:12px"><small>DIRECT INVESTMENT BALANCE</small><b>${inr2(s.balance)}</b></div>
-   <div class="grid w3">${tiles.map(x=>`<div class="card stat"><small>${x[0]}</small><b>${inr2(x[1])}</b></div>`).join('')}</div>
-   <h3>Direct transactions</h3><div class="card" style="max-height:480px;overflow:auto">${d.rows.length?d.rows.map(txRow).join(''):'<div class="empty">No direct transactions yet.</div>'}</div>`;
+function upd(n, id, p) {
+  const s = sh(n), v = s.getDataRange().getValues(), h = v[0];
+  for (let i = 1; i < v.length; i++) if (v[i][0] === id) {
+    Object.keys(p).forEach(k => s.getRange(i + 1, h.indexOf(k) + 1).setValue(p[k]));
+    return true;
   }
- }catch(e){if(k===TXK2&&$('#tw'))$('#tw').innerHTML=`<div class="empty">${esc(e.message)}</div>`}
+  throw new Error('Record not found');
 }
-wallet=async function(){
- if(!document.getElementById('swcss')){const s=document.createElement('style');s.id='swcss';s.textContent='.sw{display:flex;align-items:center;justify-content:center;gap:12px;font-weight:700;color:var(--navy)}.sw span{opacity:.45}.sw span.on{opacity:1;color:var(--pur)}.sw label{position:relative;width:52px;height:28px;margin:0;display:block}.sw input{position:absolute;opacity:0;width:0;height:0;padding:0;border:0;margin:0}.sw i{position:absolute;inset:0;background:#cfd2e6;border-radius:28px;cursor:pointer;transition:.2s}.sw i:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}.sw input:checked+i{background:var(--pur)}.sw input:checked+i:before{transform:translateX(24px)}';document.head.append(s)}
- $('#main').innerHTML=`<div class="card" style="margin-bottom:14px"><div class="sw"><span id="swd">Direct</span><label><input type="checkbox" id="swc" ${TXM==='W'?'checked':''} onchange="txFlip(this)"><i></i></label><span id="sww">Wallet</span></div></div><div id="tw"></div>`;
- await txPaint();
+const find = (n, id) => all(n).find(r => r.id === id);
+const lock = fn => { const l = LockService.getScriptLock(); l.waitLock(20000); try { return fn(); } finally { l.releaseLock(); } };
+
+/* ---------- Security ---------- */
+function hashPw(p, salt) {
+  let d = salt + p;
+  for (let i = 0; i < 1000; i++) d = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, d + salt));
+  return d;
+}
+const cache = () => CacheService.getScriptCache();
+function sendOtp(email, purpose) {
+  const otp = String(Math.floor(100000 + Math.random() * 900000));
+  cache().put('o_' + purpose + email, hashPw(otp, email), Number(setting('OTP_MIN', 10)) * 60);
+  cache().remove('oa_' + purpose + email);
+  const app = setting('APP_NAME', 'WealthBridge'), rt = setting('SUPPORT_EMAIL', '');
+  MailApp.sendEmail(email, app + ' verification code', 'Your ' + app + ' code is ' + otp + '. It expires in ' + setting('OTP_MIN', 10) + ' minutes. Never share it with anyone.', rt ? { replyTo: rt } : {});
+}
+function checkOtp(email, purpose, otp) {
+  const k = 'oa_' + purpose + email, tries = Number(cache().get(k) || 0);
+  if (tries >= 5) throw new Error('Too many attempts. Request a new code.');
+  cache().put(k, String(tries + 1), Number(setting('OTP_MIN', 10)) * 60);
+  const h = cache().get('o_' + purpose + email);
+  if (!h || h !== hashPw(String(otp), email)) throw new Error('Invalid or expired code');
+  cache().remove('o_' + purpose + email);
+}
+function auth(token, needAdmin) {
+  const id = token && cache().get('s_' + token);
+  if (!id) throw new Error('SESSION_EXPIRED');
+  const u = find('Users', id);
+  if (!u || u.status === 'Suspended') throw new Error('Account suspended. Contact support.');
+  if (needAdmin && u.role !== 'admin') throw new Error('Not authorised');
+  cache().put('s_' + token, id, Number(setting('SESSION_HOURS', 6)) * 3600);
+  return u;
+}
+const pub = u => ({ id: u.id, name: u.name, email: u.email, mobile: u.mobile, role: u.role, status: u.status, kyc: u.kyc, pan: u.pan ? 'XXXXX' + String(u.pan).slice(-5) : '', acct: u.acct ? 'XXXX' + String(u.acct).slice(-4) : '', ifsc: u.ifsc, aadhaar: u.aadhaar ? 'XXXX XXXX ' + String(u.aadhaar).slice(-4) : '', docs: !!u.kycDocs });
+function note(userId, title, msg) { add('Notifications', { userId, title, msg, read: false }); }
+
+/* ---------- KYC documents (Aadhaar / PAN / Bank passbook) ---------- */
+const KYC_DOCS_REQUIRED = true;   // true = Aadhaar number + 3 document uploads are mandatory. false = old behaviour (optional).
+const KYC_FOLDER_NAME = 'WealthBridge KYC Documents';   // private Drive folder, created automatically
+const KYC_DOC_LABELS = { aadhaar: 'Aadhaar card', pan: 'PAN card', bank: 'Bank passbook / cancelled cheque' };
+function authorizeDrive() { kycFolder_(); }   // run ONCE from the editor to grant Drive permission
+function kycFolder_() { const it = DriveApp.getFoldersByName(KYC_FOLDER_NAME); return it.hasNext() ? it.next() : DriveApp.createFolder(KYC_FOLDER_NAME); }
+function aadhaarOk_(n) {   // Verhoeff checksum used by Aadhaar
+  const d = [[0,1,2,3,4,5,6,7,8,9],[1,2,3,4,0,6,7,8,9,5],[2,3,4,0,1,7,8,9,5,6],[3,4,0,1,2,8,9,5,6,7],[4,0,1,2,3,9,5,6,7,8],[5,9,8,7,6,0,4,3,2,1],[6,5,9,8,7,1,0,4,3,2],[7,6,5,9,8,2,1,0,4,3],[8,7,6,5,9,3,2,1,0,4],[9,8,7,6,5,4,3,2,1,0]];
+  const q = [[0,1,2,3,4,5,6,7,8,9],[1,5,7,6,2,8,3,0,9,4],[5,8,0,3,7,9,6,1,4,2],[8,9,1,6,0,4,3,5,2,7],[9,4,5,3,1,2,6,8,7,0],[4,2,8,6,5,7,3,9,0,1],[2,7,9,3,8,0,6,4,1,5],[7,0,4,6,9,1,3,2,5,8]];
+  let c = 0; String(n).split('').reverse().forEach((ch, i) => { c = d[c][q[i % 8][+ch]]; });
+  return c === 0;
+}
+function kycBlob_(u, key, f) {
+  const lbl = KYC_DOC_LABELS[key];
+  if (!f || !f.data) throw new Error('Upload your ' + lbl);
+  let bytes; try { bytes = Utilities.base64Decode(String(f.data)); } catch (e) { throw new Error('Invalid file for ' + lbl); }
+  if (bytes.length > 3 * 1024 * 1024) throw new Error(lbl + ' is too large (max 3 MB)');
+  const b = bytes.slice(0, 4).map(x => x & 255);
+  let mime = '', ext = '';
+  if (b[0] === 255 && b[1] === 216) { mime = 'image/jpeg'; ext = 'jpg'; }
+  else if (b[0] === 137 && b[1] === 80 && b[2] === 78 && b[3] === 71) { mime = 'image/png'; ext = 'png'; }
+  else if (b[0] === 37 && b[1] === 80 && b[2] === 68 && b[3] === 70) { mime = 'application/pdf'; ext = 'pdf'; }
+  else throw new Error(lbl + ': only JPG, PNG or PDF files are allowed');
+  return Utilities.newBlob(bytes, mime, u.id + '_' + key + '_' + Date.now() + '.' + ext);
+}
+function kycExtra_(u, p) {
+  const aad = String(p.aadhaar || '').replace(/\s+/g, '');
+  if (!/^[2-9]\d{11}$/.test(aad) || !aadhaarOk_(aad)) throw new Error('Enter a valid 12-digit Aadhaar number');
+  if (!p.consent) throw new Error('Please accept the consent to continue');
+  const d = p.docs || {}, keys = ['aadhaar', 'pan', 'bank'];
+  const blobs = keys.map(k => kycBlob_(u, k, d[k]));          // validate everything first
+  const folder = kycFolder_(), ids = {};
+  try { keys.forEach((k, i) => { ids[k] = folder.createFile(blobs[i]).getId(); }); }
+  catch (e) { Object.keys(ids).forEach(k => { try { DriveApp.getFileById(ids[k]).setTrashed(true); } catch (x) {} }); throw new Error('Could not save documents. Please try again.'); }
+  let old = {}; try { old = JSON.parse(u.kycDocs || '{}'); } catch (e) {}
+  Object.keys(old).forEach(k => { try { DriveApp.getFileById(old[k]).setTrashed(true); } catch (e) {} });   // replace earlier submission
+  return { aadhaar: aad, kycDocs: JSON.stringify(ids) };
+}
+
+/* ---------- API dispatcher (called from google.script.run) ---------- */
+function api(action, token, p) {
+  try {
+    if (!H[action]) throw new Error('Unknown action');
+    const u = PUBLIC.includes(action) ? null : auth(token, action.indexOf('adm_') === 0);
+    return safeOut({ ok: true, data: H[action](u, p || {}, token) });
+  } catch (e) { return { ok: false, error: e.message }; }
+}
+/* Added: google.script.run returns null if the result contains a Date object.
+   Convert any Date to a plain string first (nextDate keeps yyyy-MM-dd). */
+function safeOut(o) {
+  return JSON.parse(JSON.stringify(o, function (k, v) {
+    const raw = this[k];
+    if (raw instanceof Date) return k === 'nextDate' ? Utilities.formatDate(raw, 'Asia/Kolkata', 'yyyy-MM-dd') : raw.toISOString();
+    return v;
+  }));
+}
+
+/* ---------- Handlers ---------- */
+const H = {
+  register(_, p) {
+    const email = String(p.email || '').trim().toLowerCase(), name = String(p.name || '').trim();
+    if (name.length < 2) throw new Error('Enter your full name');
+    if (!/^[6-9]\d{9}$/.test(p.mobile)) throw new Error('Enter a valid 10-digit mobile number');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new Error('Enter a valid email');
+    if (!/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(p.password || '')) throw new Error('Password needs 8+ characters with letters and numbers');
+    lock(() => {
+      if (all('Users').some(u => u.email === email)) throw new Error('This email is already registered');
+      const salt = Utilities.getUuid();
+      const u = add('Users', { name, mobile: p.mobile, email, hash: hashPw(p.password, salt), salt, role: 'user', status: 'Pending', kyc: 'Not Submitted', emailVerified: false });
+      note(u.id, 'Welcome to WealthBridge', 'Your account is created. Verify your email to activate it.');
+    });
+    sendOtp(email, 'reg');
+    return { email };
+  },
+  verifyEmail(_, p) {
+    const email = String(p.email).toLowerCase(); checkOtp(email, 'reg', p.otp);
+    const u = all('Users').find(x => x.email === email); if (!u) throw new Error('Account not found');
+    upd('Users', u.id, { emailVerified: true, status: u.status === 'Suspended' ? 'Suspended' : 'Active' });
+    note(u.id, 'Account active', 'Email verified. Complete KYC to start investing.');
+    return true;
+  },
+  resendOtp(_, p) { sendOtp(String(p.email).toLowerCase(), p.purpose === 'reset' ? 'reset' : 'reg'); return true; },
+  login(_, p) {
+    const email = String(p.email || '').toLowerCase(), fk = 'f_' + email;
+    if (Number(cache().get(fk) || 0) >= Number(setting('MAX_LOGIN_ATTEMPTS', 5))) throw new Error('Too many failed attempts. Try again in ' + setting('LOCKOUT_MIN', 15) + ' minutes.');
+    const u = all('Users').find(x => x.email === email);
+    if (!u || u.hash !== hashPw(p.password || '', u.salt)) { cache().put(fk, String(Number(cache().get(fk) || 0) + 1), Number(setting('LOCKOUT_MIN', 15)) * 60); throw new Error('Incorrect email or password'); }
+    if (u.status === 'Suspended') throw new Error('Account suspended. Contact support.');
+    if (!u.emailVerified) { sendOtp(email, 'reg'); return { needOtp: true, email }; }
+    cache().remove(fk);
+    const token = Utilities.getUuid() + Utilities.getUuid();
+    cache().put('s_' + token, u.id, Number(setting('SESSION_HOURS', 6)) * 3600);
+    return { token, user: pub(u) };
+  },
+  logout(_, __, token) { cache().remove('s_' + token); return true; },
+  requestReset(_, p) {
+    const email = String(p.email).toLowerCase();
+    if (all('Users').some(u => u.email === email)) sendOtp(email, 'reset');
+    return true; // same reply either way
+  },
+  resetPassword(_, p) {
+    const email = String(p.email).toLowerCase(); checkOtp(email, 'reset', p.otp);
+    if (!/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(p.password || '')) throw new Error('Password needs 8+ characters with letters and numbers');
+    const u = all('Users').find(x => x.email === email); if (!u) throw new Error('Account not found');
+    const salt = Utilities.getUuid(); upd('Users', u.id, { salt, hash: hashPw(p.password, salt) });
+    return true;
+  },
+  me(u) { return pub(u); },
+  submitKyc(u, p) {
+    if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(String(p.pan).toUpperCase())) throw new Error('Enter a valid PAN (e.g. ABCDE1234F)');
+    if (!/^\d{9,18}$/.test(p.acct)) throw new Error('Enter a valid bank account number');
+    if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(String(p.ifsc).toUpperCase())) throw new Error('Enter a valid IFSC code');
+    const extra = (KYC_DOCS_REQUIRED || p.aadhaar || p.docs) ? kycExtra_(u, p) : {};
+    upd('Users', u.id, Object.assign({ pan: String(p.pan).toUpperCase(), acct: p.acct, ifsc: String(p.ifsc).toUpperCase(), kyc: 'Pending' }, extra));
+    note(u.id, 'KYC submitted', 'We are reviewing your details.'); return true;
+  },
+  products() {
+    return all('Products').filter(x => x.status === 'Active').map(x => { const c = cfgOf(x), f = String(x.frequencies).split(',').filter(k => (c[k] || {}).enabled !== false); return { id: x.id, name: x.name, desc: x.desc, minAmount: Number(x.minAmount), frequencies: f, tenureMonths: Number(x.tenureMonths) || 0, rules: c }; });
+  },
+  invest(u, p) {
+    if (u.status !== 'Active') throw new Error('Activate your account first');
+        if (setting('WD_ENABLED', '1') === '0') throw new Error('Withdrawals are temporarily unavailable. Please try again later.');
+    if (u.kyc !== 'Verified') throw new Error('Complete KYC verification before investing');
+    const pr = find('Products', p.productId), amt = Number(p.amount);
+    if (!pr || pr.status !== 'Active') throw new Error('Product unavailable');
+    if (!FREQ[p.frequency] || String(pr.frequencies).split(',').indexOf(p.frequency) < 0) throw new Error('Frequency not offered for this product');
+    if (!(amt >= Number(pr.minAmount))) throw new Error('Minimum amount is ₹' + pr.minAmount);
+    if (!(amt > 0)) throw new Error('Enter a valid amount');
+    if (p.payWith === 'WALLET' && amt > wSum(wAll(u.id)).bal) throw new Error('Insufficient wallet balance. Add money to your wallet first.');
+    const cfg = cfgOf(pr)[p.frequency] || {}, hold = p.frequency === 'HOLD', lockDays = hold ? Number(p.lockDays) : 0;
+    if (cfg.enabled === false) throw new Error('This option is currently disabled');
+    if (cfg.min && amt < Number(cfg.min)) throw new Error('Minimum amount is ₹' + cfg.min);
+    if (cfg.max && amt > Number(cfg.max)) throw new Error('Maximum amount is ₹' + cfg.max);
+    if (hold) { const r = (cfg.rules || []).find(x => x.on !== false && Number(x.days) === lockDays); if (!r) throw new Error('Choose a valid hold period'); if (r.min && amt < Number(r.min)) throw new Error('Minimum for this hold is ₹' + r.min); if (r.max && amt > Number(r.max)) throw new Error('Maximum for this hold is ₹' + r.max); }
+    const months = Number(pr.tenureMonths) || 0, total = { ONE_TIME: 1, HOLD: 1, DAILY: months * 30, EVERY_15_DAYS: months * 2, MONTHLY: months }[p.frequency];
+    const inv = add('Investments', { userId: u.id, productId: pr.id, frequency: hold ? 'ONE_TIME' : p.frequency, mode: hold ? 'HOLD' : '', lockDays: lockDays || '', amount: amt, totalContribs: total, paid: 0, failed: 0, nextDate: today(), status: 'Pending' });
+    return p.payWith === 'WALLET' ? payWallet(u, inv) : payOrder(u, inv);
+  },
+  pay(u, p) { const inv = find('Investments', p.invId); if (!inv || inv.userId !== u.id) throw new Error('Investment not found'); if (['Cancelled','Completed'].includes(inv.status)) throw new Error('Nothing due on this investment'); return p.payWith === 'WALLET' ? payWallet(u, inv) : payOrder(u, inv); },
+  confirmPayment(u, p) {
+    const t = find('Transactions', p.txnId); if (!t || t.userId !== u.id) throw new Error('Transaction not found');
+    if (t.status === 'Success') return true;
+    const sig = Utilities.computeHmacSha256Signature(t.orderId + '|' + p.paymentId, prop('RZP_KEY_SECRET'));
+    const hex = sig.map(b => ('0' + (b & 255).toString(16)).slice(-2)).join('');
+    if (hex !== p.signature) { upd('Transactions', t.id, { status: 'Failed' }); note(u.id, 'Payment failed', 'We could not verify your payment of ₹' + t.amount + '.'); throw new Error('Payment verification failed'); }
+    lock(() => {
+      upd('Transactions', t.id, { status: 'Success', paymentId: p.paymentId });
+      const inv = find('Investments', t.invId), paid = Number(inv.paid) + 1;
+      const done = inv.frequency !== 'ONE_TIME' && Number(inv.totalContribs) > 0 && paid >= Number(inv.totalContribs);
+      upd('Investments', inv.id, { paid, status: done ? 'Completed' : 'Active', nextDate: inv.frequency === 'ONE_TIME' ? '' : nextFrom(inv.nextDate, inv.frequency) });
+      note(u.id, 'Payment successful', '₹' + t.amount + ' received.');
+      if (paid === 1) note(u.id, 'Investment activated', 'Your ' + FREQ[inv.frequency] + ' investment is now active.');
+    });
+    return true;
+  },
+  paymentFailed(u, p) { const t = find('Transactions', p.txnId); if (t && t.userId === u.id && t.status === 'Pending') { upd('Transactions', t.id, { status: 'Failed' }); note(u.id, 'Payment failed', 'Your payment of ₹' + t.amount + ' did not go through. You can retry from My Investments.'); } return true; },
+  setSubscription(u, p) {
+    const inv = find('Investments', p.invId); if (!inv || inv.userId !== u.id) throw new Error('Investment not found');
+    const ok = { Pause: 'Paused', Resume: 'Active', Cancel: 'Cancelled' }[p.op]; if (!ok) throw new Error('Invalid action');
+    if (['Completed','Cancelled'].includes(inv.status) || inv.status === 'Pending') throw new Error('Not allowed in current status');
+    upd('Investments', inv.id, { status: ok }); note(u.id, 'Subscription ' + ok.toLowerCase(), 'Your subscription is now ' + ok.toLowerCase() + '.'); return true;
+  },
+  myInvestments(u) {
+    const pm = Object.fromEntries(all('Products').map(x => [x.id, x])), reds = all('Redemptions').filter(r => r.userId === u.id && r.status !== 'Rejected'), txs = all('Transactions').filter(t => t.userId === u.id && t.status === 'Success');
+    return all('Investments').filter(i => i.userId === u.id).map(i => {
+      const invested = Number(i.paid) * Number(i.amount), redeemed = reds.filter(r => r.invId === i.id).reduce((s, r) => s + Number(r.amount), 0), v = invValue(i, pm[i.productId], txs.filter(t => t.invId === i.id));
+      return { id: i.id, product: (pm[i.productId] || {}).name || 'Product', frequency: FREQ[i.frequency], amount: Number(i.amount), total: Number(i.totalContribs), paid: Number(i.paid), failed: Number(i.failed), pending: Math.max(0, Number(i.totalContribs) - Number(i.paid) - Number(i.failed)), nextDate: i.nextDate, status: i.status, invested, redeemable: Math.max(0, v.value - v.locked - redeemed), growth: v.growth, value: v.value, balance: Math.max(0, Math.round((v.value - redeemed) * 100) / 100), mode: i.mode || '', unlockDate: v.unlock, created: i.created };
+    }).reverse();
+  },
+  dashboard(u) {
+    const inv = H.myInvestments(u), tx = all('Transactions').filter(t => t.userId === u.id).reverse();
+    const byProduct = {}; inv.forEach(i => byProduct[i.product] = (byProduct[i.product] || 0) + i.invested);
+    return { user: pub(u), invested: inv.reduce((s, i) => s + i.invested, 0), active: inv.filter(i => i.status === 'Active').length, completed: inv.filter(i => i.status === 'Completed').length, pendingPayments: tx.filter(t => t.status === 'Pending').length, byProduct, recent: tx.slice(0, 8), unread: all('Notifications').filter(n => n.userId === u.id && !n.read).length };
+  },
+  transactions(u) { return all('Transactions').filter(t => t.userId === u.id).reverse(); },
+  notifications(u) { return all('Notifications').filter(n => n.userId === u.id).reverse().slice(0, 50); },
+  markRead(u) { all('Notifications').filter(n => n.userId === u.id && !n.read).forEach(n => upd('Notifications', n.id, { read: true })); return true; },
+  redeem(u, p) {
+    const inv = H.myInvestments(u).find(i => i.id === p.invId), amt = Number(p.amount);
+    if (u.kyc !== 'Verified') throw new Error('KYC required');
+    if (!inv || !(amt > 0) || amt > inv.redeemable) throw new Error('Amount exceeds redeemable balance (₹' + (inv ? inv.redeemable : 0) + ')');
+    add('Redemptions', { userId: u.id, invId: inv.id, amount: amt, status: 'Pending', note: '' });
+    note(u.id, 'Redemption requested', '₹' + amt + ' withdrawal is awaiting review.'); return true;
+  },
+  myRedemptions(u) { return all('Redemptions').filter(r => r.userId === u.id).reverse(); },
+
+  /* ----- Admin ----- */
+  adm_stats() {
+    const tx = all('Transactions').filter(t => t.status === 'Success'), us = all('Users').filter(u => u.role !== 'admin');
+    return { users: us.length, kycPending: us.filter(u => u.kyc === 'Pending').length, collected: tx.reduce((s, t) => s + Number(t.amount), 0), activeInv: all('Investments').filter(i => i.status === 'Active').length, redemptionsPending: all('Redemptions').filter(r => r.status === 'Pending').length };
+  },
+  adm_products() { return all('Products').reverse(); },
+  adm_saveProduct(_, p) {
+    const f = String(p.frequencies || '').split(',').filter(x => FREQ[x]);
+    if (!p.name || !f.length) throw new Error('Name and at least one frequency are required');
+    const o = { name: p.name, desc: p.desc || '', minAmount: Number(p.minAmount) || 0, frequencies: f.join(','), status: p.status === 'Inactive' ? 'Inactive' : 'Active' };
+    if (p.tenureMonths) o.tenureMonths = Number(p.tenureMonths);
+    if (p.rules !== undefined) o.rules = cleanRules(p.rules, f);
+    if (p.id) upd('Products', p.id, o); else add('Products', o); return true;
+  },
+  adm_users() { return all('Users').filter(u => u.role !== 'admin').map(u => Object.assign(pub(u), { pan: u.pan, acct: u.acct, aadhaar: u.aadhaar, created: u.created })).reverse(); },
+  adm_setUserStatus(_, p) {
+    if (!['Active','Pending','Suspended'].includes(p.status)) throw new Error('Invalid status'); upd('Users', p.userId, { status: p.status });
+    note(p.userId, 'Account ' + p.status.toLowerCase(), 'Your account status is now ' + p.status + '.'); return true;
+  },
+  adm_reviewKyc(_, p) {
+    if (!['Verified','Rejected'].includes(p.kyc)) throw new Error('Invalid KYC status'); upd('Users', p.userId, { kyc: p.kyc });
+    note(p.userId, 'KYC ' + p.kyc.toLowerCase(), p.kyc === 'Verified' ? 'You can now start investing.' : 'Please resubmit correct details.'); return true;
+  },
+  adm_kycDoc(_, p) {
+    const u = find('Users', p.userId); if (!u) throw new Error('User not found');
+    let ids = {}; try { ids = JSON.parse(u.kycDocs || '{}'); } catch (e) {}
+    if (!['aadhaar', 'pan', 'bank'].includes(p.key) || !ids[p.key]) throw new Error('Document not uploaded');
+    const b = DriveApp.getFileById(ids[p.key]).getBlob();
+    return { mime: b.getContentType(), data: Utilities.base64Encode(b.getBytes()) };
+  },
+  
+  adm_transactions() { return all('Transactions').reverse().slice(0, 300); },
+  adm_redemptions() { const us = Object.fromEntries(all('Users').map(u => [u.id, u])); return all('Redemptions').reverse().map(r => Object.assign(r, { user: (us[r.userId] || {}).name, acct: (us[r.userId] || {}).acct, ifsc: (us[r.userId] || {}).ifsc })); },
+  adm_processRedemption(_, p) {
+    const r = find('Redemptions', p.id); if (!r || r.status !== 'Pending') throw new Error('Already processed');
+    if (!['Approved','Rejected'].includes(p.status)) throw new Error('Invalid status');
+    upd('Redemptions', r.id, { status: p.status, note: p.note || '' }); note(r.userId, 'Redemption ' + p.status.toLowerCase(), '₹' + r.amount + ' request ' + p.status.toLowerCase() + '. ' + (p.note || '')); return true;
+  },
+  adm_report() {
+    const prods = Object.fromEntries(all('Products').map(x => [x.id, x.name])), byProduct = {}, byDay = {};
+    const invs = Object.fromEntries(all('Investments').map(i => [i.id, i]));
+    all('Transactions').filter(t => t.status === 'Success').forEach(t => { const n = prods[(invs[t.invId] || {}).productId] || 'Unknown'; byProduct[n] = (byProduct[n] || 0) + Number(t.amount); const d = String(t.created).slice(0, 10); byDay[d] = (byDay[d] || 0) + Number(t.amount); });
+    return { byProduct, byDay };
+  }
 };
 
-/* ---------- Shell ---------- */
-const NAV=[['dash','⌂','Home'],['prod','✦','Invest'],['wallet','◈','Transaction'],['inv','▤','Mine'],['notif','🔔','Alerts'],['prof','☺','Profile']];
-function shell(){
-  $('#app').innerHTML=`<div class="top"><div class="brand">Wealth<b>Bridge</b></div><span class="pill">${esc(ME.name.split(' ')[0])}</span></div><main id="main"></main><nav>${NAV.map(n=>`<a data-p="${n[0]}" onclick="go('${n[0]}')"><i>${n[1]}</i>${n[2]}<em id="b-${n[0]}" hidden></em></a>`).join('')}</nav>`;go('dash');
+/* ---------- Payments ---------- */
+const prop = k => { const v = PropertiesService.getScriptProperties().getProperty(k); if (!v) throw new Error('Payment gateway not configured'); if (k === 'RZP_KEY_ID' && PropertiesService.getScriptProperties().getProperty('GATEWAY_ENABLED') === '0') throw new Error('Online payments are currently disabled. Please pay from your wallet.'); return v; };
+function payOrder(u, inv) {
+  const keyId = prop('RZP_KEY_ID'), secret = prop('RZP_KEY_SECRET');
+  const t = add('Transactions', { userId: u.id, invId: inv.id, amount: Number(inv.amount), status: 'Pending' });
+  const res = UrlFetchApp.fetch('https://api.razorpay.com/v1/orders', { method: 'post', contentType: 'application/json', muteHttpExceptions: true, headers: { Authorization: 'Basic ' + Utilities.base64Encode(keyId + ':' + secret) }, payload: JSON.stringify({ amount: Math.round(Number(inv.amount) * 100), currency: 'INR', receipt: t.id.slice(0, 40) }) });
+  const o = JSON.parse(res.getContentText());
+  if (!o.id) { upd('Transactions', t.id, { status: 'Failed' }); throw new Error('Could not start payment. Try again.'); }
+  upd('Transactions', t.id, { orderId: o.id });
+  return { txnId: t.id, orderId: o.id, amount: o.amount, keyId, name: u.name, email: u.email, mobile: u.mobile };
 }
-function go(p){PAGE=p;document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.dataset.p===p));$('#main').innerHTML='<div class="sk"></div><div class="sk"></div><div class="sk"></div>';({dash,prod,wallet,inv,notif,prof})[p]().catch(e=>{$('#main').innerHTML=`<div class="empty">${esc(e.message)}<br><br><button class="btn sm" onclick="go('${p}')">Try again</button></div>`})}
-const tx=t=>`<div class="row"><div><b>${inr(t.amount)}</b><br><small style="color:var(--mut)">${fd(t.created)}</small></div><span class="pill ${t.status}">${t.status}</span></div>`;
 
-async function dash(){
-  const d=await call('dashboard');ME=d.user;const bp=Object.entries(d.byProduct).filter(x=>x[1]>0),mx=Math.max(1,...bp.map(x=>x[1]));
-  if(d.unread){const b=$('#b-notif');b.hidden=false;b.textContent=d.unread}
-  $('#main').innerHTML=`<h2>Hello, ${esc(ME.name.split(' ')[0])}</h2><p class="sub">${ME.kyc!=='Verified'?`KYC status: <span class="pill ${ME.kyc==='Pending'?'Pending':''}">${esc(ME.kyc)}</span> — <a href="#" onclick="go('prof');return false">complete KYC</a> to start investing.`:'Your account is verified.'}</p>
-  <div class="card hero stat" style="margin-bottom:12px"><small>Total invested</small><b>${inr(d.invested)}</b></div>
-  <div class="grid"><div class="card stat"><small>Active</small><b>${d.active}</b></div><div class="card stat"><small>Completed</small><b>${d.completed}</b></div><div class="card stat"><small>Pending payments</small><b>${d.pendingPayments}</b></div><div class="card stat"><small>Unread alerts</small><b>${d.unread}</b></div></div>
-  <h3>Portfolio by product</h3><div class="card">${bp.length?bp.map(([k,v])=>`<div><div class="row" style="border:0;padding:0"><span>${esc(k)}</span><b>${inr(v)}</b></div><div class="bar"><i style="width:${v/mx*100}%"></i></div></div>`).join(''):'<div class="empty">Your portfolio will appear here after your first payment.</div>'}</div>
-  <h3>Recent transactions</h3><div class="card">${d.recent.length?d.recent.map(tx).join(''):'<div class="empty">No transactions yet.</div>'}</div>`;
+/* ---------- Scheduling ---------- */
+const today = () => Utilities.formatDate(new Date(), 'Asia/Kolkata', 'yyyy-MM-dd');
+function nextFrom(d, f) {
+  const x = new Date(d + 'T00:00:00'); if (f === 'MONTHLY') x.setMonth(x.getMonth() + 1); else x.setDate(x.getDate() + (f === 'DAILY' ? 1 : 15));
+  return Utilities.formatDate(x, 'Asia/Kolkata', 'yyyy-MM-dd');
 }
-async function prod(){
-  const ps=await call('products');window._ps=ps;
-  $('#main').innerHTML=`<h2>Investment products</h2><p class="sub">Choose a plan and how you want to pay.</p>${ps.length?ps.map((p,i)=>{const g=ivGrowth(p);return `<div class="card pc"><b class="pc-n">${esc(p.name)}</b><p class="sub" style="margin:2px 0 0">${esc(p.desc)}</p>
-   <div class="pc-g"><div><small>Minimum investment</small><b>${ivMin(p)}</b></div><div><small>Growth</small><b>${esc(g.a)}</b>${g.b?`<em>${esc(g.b)}</em>`:''}</div>${p.tenureMonths?`<div><small>Plan duration</small><b>${p.tenureMonths} months</b></div>`:''}</div>
-   <div class="pc-f"><small>Available frequencies</small><div>${ivSort(p.frequencies).map(f=>`<span>${IVL[f]}</span>`).join('')}</div></div>
-   <button class="btn pc-b" onclick="openInvest2(window._ps[${i}])">Invest</button></div>`}).join(''):'<div class="empty">No products are open right now. Check back soon.</div>'}`;
+function dailyJob() {
+  const t = today(), tomorrow = nextFrom(t, 'DAILY');
+  all('Investments').filter(i => i.status === 'Active' && i.frequency !== 'ONE_TIME' && i.nextDate).forEach(i => {
+    const nd = String(i.nextDate);
+    if (nd < t) { upd('Investments', i.id, { failed: Number(i.failed) + 1, nextDate: nextFrom(nd, i.frequency) }); note(i.userId, 'Missed contribution', 'You missed the ₹' + i.amount + ' contribution due on ' + nd + '.'); }
+    else if (nd === tomorrow) note(i.userId, 'Upcoming contribution', '₹' + i.amount + ' is due tomorrow.');
+  });
 }
-const FL={ONE_TIME:'One-time',DAILY:'Daily',EVERY_15_DAYS:'Every 15 days',MONTHLY:'Monthly',HOLD:'On hold / lock-in'};
-function modal(h){const m=document.createElement('div');m.className='modal';m.innerHTML=`<div class="card">${h}</div>`;m.onclick=e=>{if(e.target===m)m.remove()};document.body.append(m);return m}
-function openInvest(p){
-  const m=modal(`<h3 style="margin-top:0">${esc(p.name)}</h3><div id="err" class="err" hidden></div><label>Payment frequency</label><select id="fq">${p.frequencies.map(f=>`<option value="${f}">${FL[f]}</option>`).join('')}</select><label>Amount per payment (₹)</label><input id="am" type="number" min="1" value="${p.minAmount||''}"><div id="hs"></div><p class="sub" id="sm"></p><div id="rl"></div><label>Pay with</label><select id="pw"><option value="WALLET">Wallet balance</option><option value="ONLINE">UPI / Card / Net Banking</option></select><p class="sub" id="wb"></p><button class="btn" style="width:100%" id="go">Pay and start</button>`);
-  const gA=(c,a,d)=>{const rs=(c.rules||[]).filter(r=>r.on!==false&&d>=+r.days);if(!rs.length)return 0;const r=rs.reduce((x,y)=>+y.days>+x.days?y:x),q=r.pct/100;return Math.round(a*(Math.pow(1+q,d/365)-1)*100)/100};
-  const pv=()=>{const f=$('#fq').value,c=(p.rules||{})[f]||{},rs=(c.rules||[]).filter(r=>r.on!==false),a=+$('#am').value||0;let h='';
-   if(f==='HOLD'){const L=+($('#hd')||{}).value,r=rs.find(x=>+x.days===L);if(r){const g=gA({type:c.type,compound:c.compound,rules:[r]},a,L);h=`<div class="card" style="background:#f6f4ff"><div class="row"><span>Principal</span><b>${inr(a)}</b></div><div class="row"><span>Hold start</span><b>${fd(new Date())}</b></div><div class="row"><span>Withdrawal from</span><b>${fd(Date.now()+L*864e5)}</b></div><div class="row"><span>Growth</span><b>${r.pct}%${c.type==='annual'?' a year':''}</b></div><div class="row"><span>Expected growth</span><b>${inr(g)}</b></div><div class="row"><span>Expected total</span><b>${inr(a+g)}</b></div><small>${c.earlyOn?`Early withdrawal: ${c.earlyCharge||0}% charge, no growth.`:'No withdrawal before the date above.'}</small></div>`}}
-   else if(rs.length)h=`<div class="card" style="background:#f6f4ff"><b>If you withdraw after</b>${rs.map(r=>`<div class="row"><span>${r.days} days (${r.pct}%)</span><b>${inr(a+gA(c,a,+r.days))}</b></div>`).join('')}<small>Each payment counts from its own date.</small></div>`;
-   $('#rl').innerHTML=h};
-  const upd=()=>{const f=$('#fq').value,c=(p.rules||{})[f]||{},rs=(c.rules||[]).filter(r=>r.on!==false),n=p.tenureMonths?{DAILY:p.tenureMonths*30,EVERY_15_DAYS:p.tenureMonths*2,MONTHLY:p.tenureMonths}[f]:0;
-   if(c.min&&+$('#am').value<+c.min){$('#am').value=c.min}$('#hs').innerHTML=f==='HOLD'?`<label>Hold period</label><select id="hd">${rs.map(r=>`<option value="${r.days}">${r.days} days · ${r.pct}%</option>`).join('')}</select>`:'';
-   if($('#hd'))$('#hd').onchange=pv;
-   $('#sm').textContent=f==='ONE_TIME'||f==='HOLD'?'You pay once today.':n?`${n} payments over ${p.tenureMonths} months. First payment is due now.`:'First payment is due now. You can pause or cancel any time.';pv()};
-  $('#fq').onchange=upd;$('#am').oninput=pv;upd();call('wallet').then(w=>{$('#wb').textContent='Wallet balance: '+inr2(w.balance)}).catch(()=>{});
-  $('#go').onclick=e=>act(e.target,async()=>{const o=await call('invest',{productId:p.id,frequency:$('#fq').value,amount:$('#am').value,lockDays:($('#hd')||{}).value,payWith:$('#pw').value});m.remove();if(o.wallet){toast('Paid from wallet');go('inv')}else checkout(o)});
+function makeMyAdmin() {
+  createAdmin('admin@gmail.com', '12345678');
 }
-/* ===== Invest redesign (added) – new popup + helpers. Old openInvest() is left untouched as a fallback. ===== */
-const IVF=['ONE_TIME','DAILY','EVERY_15_DAYS','MONTHLY','HOLD'],IVD=1095;
-const IVL={ONE_TIME:'One-time',DAILY:'Daily',EVERY_15_DAYS:'Every 15 Days',MONTHLY:'Monthly',HOLD:'Hold / Lock-in'};
-const ivSort=a=>IVF.filter(f=>(a||[]).includes(f));
-/* same formula as growthAmt() in Code.gs: highest completed rule only, never summed */
-const ivG=(c,a,d)=>{const rs=(c.rules||[]).filter(r=>r.on!==false&&d>=+r.days);if(!rs.length)return 0;const r=rs.reduce((x,y)=>+y.days>+x.days?y:x),q=r.pct/100;return Math.round(a*(Math.pow(1+q,d/365)-1)*100)/100};
-const ivMin=p=>{const m=(p.frequencies||[]).map(f=>Math.max(+p.minAmount||0,+((p.rules||{})[f]||{}).min||0)),lo=m.length?Math.min(...m):0;return lo>0?inr(lo):'Any amount'};
-function ivGrowth(p){
-  let best=null;
-  (p.frequencies||[]).forEach(f=>{const c=(p.rules||{})[f]||{};(c.rules||[]).forEach(r=>{if(r.on!==false&&+r.pct>0&&(!best||+r.pct>+best.pct))best={pct:+r.pct,days:+r.days,type:c.type}})});
-  if(!best)return{a:'Growth rules apply',b:''};
-  return {a:'Up to '+best.pct+'% a year',b:'Compounded growth'};
+/* ---------- Growth rules ---------- */
+function cfgOf(pr) { try { return JSON.parse((pr && pr.rules) || '{}'); } catch (e) { return {}; } }
+function cleanRules(raw, f) {
+  let g = {}; try { g = JSON.parse(raw || '{}'); } catch (e) { throw new Error('Invalid growth rules'); }
+  const out = {}, n = v => (v === '' || v == null ? '' : Number(v));
+  f.forEach(k => {
+    const c = g[k] || {}, rs = (c.rules || []).map(r => ({ days: Number(r.days), pct: Number(r.pct), desc: String(r.desc || '').slice(0, 120), on: r.on !== false, min: n(r.min), max: n(r.max) })).filter(r => r.days > 0 && r.pct >= 0);
+    out[k] = { enabled: c.enabled !== false, type: 'annual', compound: true, min: Number(c.min) || 0, max: Number(c.max) || 0, minHold: Number(c.minHold) || 0, holdDays: Number(c.holdDays) || 0, earlyOn: !!c.earlyOn, earlyCharge: Math.min(100, Number(c.earlyCharge) || 0), rules: rs };
+    if (out[k].max && out[k].min > out[k].max) throw new Error('Min amount cannot exceed max amount');
+    if (k === 'HOLD' && out[k].enabled && !rs.some(r => r.on)) throw new Error('Add at least one hold rule');
+  });
+  return JSON.stringify(out);
 }
-function ivLimits(p,f,L){
-  const c=(p.rules||{})[f]||{};let mn=Math.max(+p.minAmount||0,+c.min||0),mx=+c.max||0;
-  if(f==='HOLD'){const r=(c.rules||[]).find(x=>x.on!==false&&+x.days===L);if(r){if(+r.min)mn=Math.max(mn,+r.min);if(+r.max)mx=mx?Math.min(mx,+r.max):+r.max}}
-  return{mn,mx};
+function growthAmt(c, amt, days) { // highest completed rule only, never summed
+  const rs = (c.rules || []).filter(r => r.on !== false && days >= Number(r.days));
+  if (!rs.length) return 0;
+  const r = rs.reduce((a, b) => Number(b.days) > Number(a.days) ? b : a), q = Number(r.pct) / 100;
+  const g = amt * (Math.pow(1 + q, days / 365) - 1); // compound interest only
+  return Math.round(g * 100) / 100;
 }
-/* Hypothetical: each instalment is dated separately and gets its own eligible rule. Returns null when no rule applies. */
-function ivHist(p,f,a,L){
-  const c=(p.rules||{})[f]||{},rs=(c.rules||[]).filter(r=>r.on!==false&&+r.days>0);
-  if(!rs.length||!(a>0))return null;
-  if(f==='HOLD'){const r=rs.find(x=>+x.days===L);if(!r||IVD<L)return null;return{n:1,inv:a,g:ivG({type:c.type,compound:c.compound,rules:[r]},a,L)}}
-  const T=new Date();T.setHours(0,0,0,0);const s=new Date(T);s.setDate(s.getDate()-IVD);let hold=[];
-  if(f==='ONE_TIME')hold=[IVD];
-  else{
-    const m=+p.tenureMonths||0,cap=m?{DAILY:m*30,EVERY_15_DAYS:m*2,MONTHLY:m}[f]:Infinity;
-    for(let i=0;i<cap&&i<2000;i++){
-      let x;
-      if(f==='MONTHLY'){x=new Date(s.getFullYear(),s.getMonth()+i,1);x.setDate(Math.min(s.getDate(),new Date(x.getFullYear(),x.getMonth()+1,0).getDate()))}
-      else{x=new Date(s);x.setDate(s.getDate()+i*(f==='DAILY'?1:15))}
-      if(x>=T)break;
-      hold.push(Math.round((T-x)/864e5));
+function invValue(inv, pr, txs) { // every successful payment is its own installment with its own date
+  const c = cfgOf(pr)[inv.mode === 'HOLD' ? 'HOLD' : inv.frequency] || {}, L = Number(inv.lockDays) || 0;
+  let value = 0, growth = 0, locked = 0, unlock = '';
+  txs.forEach(t => {
+    const a = Number(t.amount), st = new Date(t.created).getTime(), d = Math.floor((Date.now() - st) / 864e5);
+    if (inv.mode === 'HOLD') {
+      unlock = new Date(st + L * 864e5).toISOString();
+      if (d >= L) { const g = growthAmt(Object.assign({}, c, { rules: (c.rules || []).filter(r => Number(r.days) === L) }), a, L); growth += g; value += a + g; }
+      else if (c.earlyOn) value += a * (1 - Number(c.earlyCharge || 0) / 100);
+      else { locked += a; value += a; }
+    } else {
+      const g = growthAmt(c, a, d); growth += g; value += a + g;
+      if (d < Number(c.minHold || c.holdDays || 0)) locked += a + g;
     }
+  });
+  const r2 = x => Math.round(x * 100) / 100;
+  return { value: r2(value), growth: r2(growth), locked: r2(locked), unlock };
+}
+
+/* ================= SETTINGS (additive) ================= */
+T.SettingsLog = ['id','adminId','section','change','created'];
+let _SP = null;
+const SP = () => _SP || (_SP = PropertiesService.getScriptProperties().getProperties());
+const setting = (k, d) => { const v = SP()[k]; return v === undefined || v === '' ? d : v; };
+const SET_DEF = {
+  APP_NAME: { s: 'general', t: 'text', max: 40, req: 1, d: 'WealthBridge', l: 'App name' },
+  SUPPORT_EMAIL: { s: 'general', t: 'email', d: '', l: 'Support email' },
+  SUPPORT_PHONE: { s: 'general', t: 'text', max: 20, d: '', l: 'Support phone' },
+  ADD_MIN: { s: 'wallet', t: 'num', min: 1, max: 1000000, d: 10, l: 'Minimum add-money amount' },
+  ADD_MAX: { s: 'wallet', t: 'num', min: 1, max: 10000000, d: 200000, l: 'Maximum add-money amount' },
+  INV_ENABLED: { s: 'investment', t: 'bool', d: '1', l: 'New investments' },
+  WALLET_PAY: { s: 'investment', t: 'bool', d: '1', l: 'Pay investments from wallet' },
+  WD_ENABLED: { s: 'withdrawal', t: 'bool', d: '1', l: 'Withdrawals' },
+  WD_MIN: { s: 'withdrawal', t: 'num', min: 1, max: 1000000, d: 100, l: 'Minimum withdrawal' },
+  WD_MAX: { s: 'withdrawal', t: 'num', min: 1, max: 10000000, d: 50000, l: 'Maximum withdrawal' },
+  SESSION_HOURS: { s: 'security', t: 'num', min: 1, max: 6, d: 6, l: 'Session duration (hours, max 6)' },
+  MAX_LOGIN_ATTEMPTS: { s: 'security', t: 'num', min: 3, max: 10, d: 5, l: 'Max failed logins' },
+  LOCKOUT_MIN: { s: 'security', t: 'num', min: 5, max: 360, d: 15, l: 'Lockout minutes' },
+  OTP_MIN: { s: 'security', t: 'num', min: 3, max: 15, d: 10, l: 'OTP validity (minutes)' }
+};
+function setLog(a, section, change) { try { add('SettingsLog', { adminId: a.id, section, change: String(change).slice(0, 300) }); } catch (e) {} }
+const putProps = o => { PropertiesService.getScriptProperties().setProperties(o); _SP = null; };
+Object.assign(H, {
+  adm_getSettings() {
+    const o = {}; Object.keys(SET_DEF).forEach(k => o[k] = setting(k, SET_DEF[k].d));
+    o.gateway = { enabled: setting('GATEWAY_ENABLED', '1') === '1', mode: setting('RZP_MODE', 'test'), keyId: setting('RZP_KEY_ID', ''), secretSet: !!setting('RZP_KEY_SECRET', '') }; // secret is never sent to the browser
+        o.payMode = payMode(); o.payBtn = { enabled: setting('PAYBTN_ENABLED', '0') === '1', code: setting('PAYBTN_CODE', '') };
+    return o;
+  },
+  adm_saveSettings(a, p) {
+    const vals = p.values || {}, out = {};
+    Object.keys(vals).forEach(k => {
+      const d = SET_DEF[k]; if (!d || d.s !== p.section) throw new Error('Unknown setting: ' + k);
+      let v = String(vals[k]).trim();
+      if (d.t === 'bool') { if (v !== '0' && v !== '1') throw new Error('Invalid value for ' + d.l); }
+      else if (d.t === 'num') { const n = Number(v); if (!(n >= d.min && n <= d.max)) throw new Error(d.l + ' must be between ' + d.min + ' and ' + d.max); v = String(n); }
+      else if (d.t === 'email') { if (v && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) throw new Error('Enter a valid support email'); }
+      else { if (d.req && !v) throw new Error(d.l + ' is required'); v = v.slice(0, d.max); }
+      out[k] = v;
+    });
+    const g = k => Number(out[k] !== undefined ? out[k] : setting(k, SET_DEF[k].d));
+    if (p.section === 'wallet' && g('ADD_MIN') > g('ADD_MAX')) throw new Error('Minimum cannot be more than maximum');
+    if (p.section === 'withdrawal' && g('WD_MIN') > g('WD_MAX')) throw new Error('Minimum cannot be more than maximum');
+    if (!Object.keys(out).length) throw new Error('Nothing to save');
+    putProps(out); setLog(a, p.section, 'Updated ' + Object.keys(out).join(', '));
+    return true;
+  },
+  adm_saveGateway(a, p) {
+    const mode = p.mode === 'live' ? 'live' : 'test', oldId = setting('RZP_KEY_ID', ''), kid = String(p.keyId || '').trim() || oldId, sec = String(p.secret || '').trim();
+    if (!kid) throw new Error('Enter your Razorpay Key ID');
+    if (!/^rzp_(test|live)_[A-Za-z0-9]{8,}$/.test(kid)) throw new Error('Key ID looks wrong. It should start with rzp_test_ or rzp_live_');
+    if (kid.indexOf('rzp_' + mode + '_') !== 0) throw new Error('This Key ID does not match the selected ' + (mode === 'live' ? 'Live' : 'Test') + ' mode');
+    if (kid !== oldId && !sec) throw new Error('A new Key ID needs its Key Secret too');
+    if (!sec && !setting('RZP_KEY_SECRET', '')) throw new Error('Enter your Razorpay Key Secret');
+    const o = { RZP_MODE: mode, RZP_KEY_ID: kid }; if (sec) o.RZP_KEY_SECRET = sec;
+    putProps(o); setLog(a, 'gateway', 'Saved Razorpay (' + mode + ' mode, key ' + kid.slice(0, 12) + '...' + (sec ? ', secret updated' : '') + ')');
+    return true;
+  },
+  adm_gatewayToggle(a, p) {
+    const on = p.enabled === true || p.enabled === '1' || p.enabled === 1;
+    if (on && !(setting('RZP_KEY_ID', '') && setting('RZP_KEY_SECRET', ''))) throw new Error('Save your Razorpay keys first');
+    putProps(on ? { GATEWAY_ENABLED: '1', PAYBTN_ENABLED: '0' } : { GATEWAY_ENABLED: '0' }); setLog(a, 'gateway', on ? 'Gateway enabled' : 'Gateway disabled');
+    return true;
+  },
+  adm_testGateway() {
+    const id = setting('RZP_KEY_ID', ''), sec = setting('RZP_KEY_SECRET', '');
+    if (!id || !sec) throw new Error('Save your Razorpay keys first');
+    const c = UrlFetchApp.fetch('https://api.razorpay.com/v1/orders?count=1', { muteHttpExceptions: true, headers: { Authorization: 'Basic ' + Utilities.base64Encode(id + ':' + sec) } }).getResponseCode();
+    if (c === 200) return { ok: true, msg: 'Connected to Razorpay (' + (id.indexOf('rzp_live_') === 0 ? 'Live' : 'Test') + ' mode)' };
+    if (c === 401) throw new Error('Razorpay rejected these keys. Check the Key ID and Secret.');
+    throw new Error('Razorpay returned status ' + c + '. Try again.');
   }
-  let g=0,ok=false;hold.forEach(d=>{if(rs.some(r=>d>=+r.days))ok=true;g+=ivG(c,a,d)});
-  return ok?{n:hold.length,inv:Math.round(a*hold.length*100)/100,g:Math.round(g*100)/100}:null;
+});
+
+/* ================= WALLET (additive – nothing above is changed) ================= */
+T.WalletTxns = ['id','userId','type','dir','amount','status','desc','ref','orderId','paymentId','payout','adminId','created'];
+const WD_MIN = Number(setting('WD_MIN', 100)), WD_MAX = Number(setting('WD_MAX', 50000)), ADD_MIN = Number(setting('ADD_MIN', 10)), ADD_MAX = Number(setting('ADD_MAX', 200000));
+const rnd2 = x => Math.round(Number(x) * 100) / 100;
+const wAll = uid => all('WalletTxns').filter(t => t.userId === uid);
+const wId = () => 'WT' + Utilities.formatDate(new Date(), 'Asia/Kolkata', 'yyMMdd') + Utilities.getUuid().replace(/-/g, '').slice(0, 8).toUpperCase();
+const wAdd = o => add('WalletTxns', Object.assign({ id: wId(), status: 'Completed' }, o));
+/* Balance is ALWAYS computed from the ledger (never stored/edited): credits count when Completed; debits count unless Failed.
+   A rejected withdrawal stays as a debit and is cancelled by its own "Withdrawal Reversal" credit, so the audit trail is permanent. */
+function wSum(rows) {
+  let cr = 0, dr = 0, reserved = 0, added = 0, wd = 0, credit = 0, debit = 0;
+  rows.forEach(t => {
+    const a = Number(t.amount);
+    if (t.dir === 'CR' && t.status === 'Completed') { cr += a; if (t.type !== 'Withdrawal Reversal') credit += a; if (t.type === 'Money Added') added += a; }
+    if (t.dir === 'DR' && t.status !== 'Failed') { dr += a; if (t.status === 'Pending' || t.status === 'Approved') reserved += a; if (t.status !== 'Rejected') debit += a; if (t.status === 'Paid') wd += a; }
+  });
+  return { bal: rnd2(cr - dr), reserved: rnd2(reserved), added: rnd2(added), withdrawn: rnd2(wd), credit: rnd2(credit), debit: rnd2(debit) };
 }
-function openInvest2(p){
-  const fs=ivSort(p.frequencies);if(!fs.length){toast('No investment options are available right now');return}
-  const m=modal(`<div class="iv-hd"><div class="iv-t">${esc(p.name)}</div><button type="button" class="iv-x" aria-label="Close" onclick="this.closest('.modal').remove()">×</button></div><div id="err" class="err" hidden></div>
-  <div class="iv-s"><i>1</i>Investment Amount</div>
-  <div class="iv-amt"><span>₹</span><input id="am" type="number" inputmode="decimal" min="1" placeholder="Enter Amount"></div><p class="iv-h" id="lm"></p>
-  <div class="iv-s"><i>2</i>Payment Frequency</div>
-  <div class="iv-f" id="ff" role="radiogroup" aria-label="Payment Frequency" style="--n:${Math.min(fs.length,4)}">${fs.map(f=>`<button type="button" role="radio" aria-checked="false" data-f="${f}">${IVL[f]}</button>`).join('')}</div><input type="hidden" id="fq">
-  <div id="hs"></div>
-  <div class="pj" id="hc"></div><span id="rlw" hidden></span>
-  <label>Pay with</label><div class="iv-f" id="pf" style="--n:2"><button type="button" role="radio" data-v="WALLET" class="on" aria-checked="true">Wallet balance</button><button type="button" role="radio" data-v="ONLINE" aria-checked="false">UPI / Card / Net Banking</button></div><input type="hidden" id="pw" value="WALLET">
-  <p class="sub" id="wb"></p><p class="sub" id="sm"></p><button class="btn" style="width:100%" id="go">Pay and start</button>`);
-  const cfg=()=>(p.rules||{})[$('#fq').value]||{},HL=()=>+(($('#hd')||{}).value)||0;
-  const pv=()=>{};
-  const hist=()=>{const f=$('#fq').value,a=+$('#am').value||0,r=a>0?ivHist(p,f,a,HL()):null;let v='₹0.00',g;
-   if(!(a>0))g='';
-   else if(!r){v='—';g='<span>Projection currently unavailable.</span>'}
-   else{const tot=r.inv+r.g,pc=r.inv>0?(r.g/r.inv*100):0;v=inr2(tot);g=`<b>+${inr2(r.g)} growth · +${pc.toFixed(2)}%</b><span>on ${inr2(r.inv)} invested</span>`}
-   $('#hc').innerHTML=`<div class="pj-l">Your Investment in 3 Years</div><div class="pj-s">Estimated Value</div><div class="pj-v">${v}</div><div class="pj-g">${g}</div>`};
-  const lim=()=>{const{mn,mx}=ivLimits(p,$('#fq').value,HL()),a=+$('#am').value,l=$('#lm');
-   l.textContent=[mn?'Minimum '+inr(mn):'',mx?'Maximum '+inr(mx):''].filter(Boolean).join(' · ');l.classList.toggle('bad',!!(a&&((mn&&a<mn)||(mx&&a>mx))))};
-  const upd=()=>{const f=$('#fq').value,c=cfg(),rs=(c.rules||[]).filter(r=>r.on!==false),n=p.tenureMonths?{DAILY:p.tenureMonths*30,EVERY_15_DAYS:p.tenureMonths*2,MONTHLY:p.tenureMonths}[f]:0;
-   if(f==='HOLD'){const keep=HL(),cur=rs.some(r=>+r.days===keep)?keep:+(rs[0]||{}).days;
-    $('#hs').innerHTML=`<label>Hold period</label><div class="iv-f" id="hf" style="--n:${Math.min(rs.length||1,3)}">${rs.map(r=>`<button type="button" role="radio" data-d="${r.days}" class="${+r.days===cur?'on':''}" aria-checked="${+r.days===cur}">${r.days} days · ${r.pct}%</button>`).join('')}</div><input type="hidden" id="hd" value="${cur||''}">`;
-    m.querySelectorAll('#hf button').forEach(b=>b.onclick=()=>{$('#hd').value=b.dataset.d;m.querySelectorAll('#hf button').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-checked',x===b)});lim();pv();hist()})}
-   else $('#hs').innerHTML='';
-   $('#rlw').open=f==='HOLD';
-   $('#sm').textContent=f==='ONE_TIME'||f==='HOLD'?'You pay once today.':n?`${n} payments over ${p.tenureMonths} months. First payment is due now.`:'First payment is due now. You can pause or cancel any time.';
-   lim();pv();hist()};
-  const pick=f=>{$('#fq').value=f;m.querySelectorAll('#ff button').forEach(b=>{const o=b.dataset.f===f;b.classList.toggle('on',o);b.setAttribute('aria-checked',o)});upd()};
-  m.querySelectorAll('#ff button').forEach(b=>b.onclick=()=>pick(b.dataset.f));
-  m.querySelectorAll('#pf button').forEach(b=>b.onclick=()=>{$('#pw').value=b.dataset.v;m.querySelectorAll('#pf button').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-checked',x===b)})});
-  $('#am').oninput=()=>{lim();pv();hist()};pick(fs[0]);
-  call('wallet').then(w=>{$('#wb').textContent='Wallet balance: '+inr2(w.balance)}).catch(()=>{});
-    $('#sm').style.display='none'; /* hides "You pay once today" text */
-    /* Payment-mode rules (added): Button/None mode = wallet only; API mode = wallet + Razorpay */
-  Promise.all([call('wallet'),call('paymentMode')]).then(([w,pm])=>{
-    const api=pm.mode==='api',on=m.querySelector('#pf [data-v="ONLINE"]'),wl=m.querySelector('#pf [data-v="WALLET"]'),go=$('#go');
-    wl.textContent='Pay using Wallet';on.textContent='Pay using Razorpay';
-        if(!api){$('#pf').style.display='none';$('#pf').previousElementSibling.style.display='none';$('#pw').value='WALLET'}
-    if(!api){on.style.display='none';$('#pf').style.setProperty('--n',1);$('#pw').value='WALLET'}
-    const info=document.createElement('p');info.className='sub';$('#wb').after(info);
-    const chk=()=>{const a=+$('#am').value||0,low=a>0&&a>w.balance;
-      info.innerHTML=low?'<span style="color:#c0392b">'+(api?'Insufficient wallet balance. Choose Pay using Razorpay instead.':'Insufficient wallet balance. Add money to your wallet first.')+'</span>':'';
-      go.disabled=$('#pw').value==='WALLET'&&low};
-    $('#am').addEventListener('input',chk);m.querySelectorAll('#pf button').forEach(b=>b.addEventListener('click',chk));chk();
-  }).catch(()=>{});
-  /* identical API call to the old popup – backend unchanged */
-  $('#go').onclick=e=>act(e.target,async()=>{const o=await call('invest',{productId:p.id,frequency:$('#fq').value,amount:$('#am').value,lockDays:($('#hd')||{}).value,payWith:$('#pw').value});m.remove();if(o.wallet){toast('Paid from wallet');go('inv')}else checkout(o)});
+function rzpOrder(amt, receipt) {
+  const keyId = prop('RZP_KEY_ID'), secret = prop('RZP_KEY_SECRET');
+  const res = UrlFetchApp.fetch('https://api.razorpay.com/v1/orders', { method: 'post', contentType: 'application/json', muteHttpExceptions: true, headers: { Authorization: 'Basic ' + Utilities.base64Encode(keyId + ':' + secret) }, payload: JSON.stringify({ amount: Math.round(amt * 100), currency: 'INR', receipt: String(receipt).slice(0, 40) }) });
+  return { o: JSON.parse(res.getContentText()), keyId };
 }
-function checkout(o){
-  const r=new Razorpay({key:o.keyId,amount:o.amount,currency:'INR',name:'WealthBridge',order_id:o.orderId,prefill:{name:o.name,email:o.email,contact:o.mobile},theme:{color:'#6b3df0'},
-   handler:async x=>{try{await call('confirmPayment',{txnId:o.txnId,paymentId:x.razorpay_payment_id,signature:x.razorpay_signature});toast('Payment successful');go('inv')}catch(e){toast(e.message)}},
-   modal:{ondismiss:()=>api('paymentFailed',{txnId:o.txnId})}});
-  r.on('payment.failed',()=>{api('paymentFailed',{txnId:o.txnId});toast('Payment failed. You can retry from Mine.')});r.open();
+function rzpVerify(orderId, paymentId, sig) {
+  const h = Utilities.computeHmacSha256Signature(orderId + '|' + paymentId, prop('RZP_KEY_SECRET')).map(b => ('0' + (b & 255).toString(16)).slice(-2)).join('');
+  return h === sig;
 }
-async function inv(){
-  const [l,rd]=await Promise.all([call('myInvestments'),call('myRedemptions')]);
-  $('#main').innerHTML=`<h2>My investments</h2>${l.length?l.map(i=>`<div class="card" style="margin-bottom:12px"><div class="row" style="padding-top:0"><div><b>${esc(i.product)}</b><br><small style="color:var(--mut)">${inr(i.amount)} · ${esc(i.frequency)}</small></div><span class="pill ${i.status}">${i.status}</span></div>
-   <div class="bar"><i style="width:${Math.min(100,i.paid/i.total*100)}%"></i></div><div class="grid" style="grid-template-columns:repeat(3,1fr);font-size:13px"><div>Paid<br><b>${i.paid}/${i.total}</b></div><div>Pending<br><b>${i.pending}</b></div><div>Failed<br><b>${i.failed}</b></div></div>
-   <div class="row"><span>Invested</span><b>${inr(i.invested)}</b></div>${i.growth?`<div class="row"><span>Growth earned</span><b>${inr(i.growth)}</b></div>`:''}${i.mode==='HOLD'&&i.unlockDate&&new Date(i.unlockDate)>new Date()?`<div class="row"><span>Locked until</span><b>${fd(i.unlockDate)}</b></div>`:''}<div class="row"><span>Next date</span><b>${fd(i.nextDate)}</b></div>
-   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${['Active','Pending'].includes(i.status)&&i.nextDate?`<button class="btn sm" onclick="payNow('${i.id}',this)">Pay now</button>`:''}${i.status==='Active'&&i.frequency!=='One-time'?`<button class="btn sm sec" onclick="sub('${i.id}','Pause')">Pause</button>`:''}${i.status==='Paused'?`<button class="btn sm sec" onclick="sub('${i.id}','Resume')">Resume</button>`:''}${['Active','Paused'].includes(i.status)&&i.frequency!=='One-time'?`<button class="btn sm sec" onclick="if(confirm('Cancel this subscription?'))sub('${i.id}','Cancel')">Cancel</button>`:''}${i.redeemable>0?`<button class="btn sm sec" onclick="redeemOpt('${i.id}')">Withdraw</button>`:''}<button class="btn sm sec" onclick="invTx('${i.id}')">Transaction</button></div></div>`).join(''):'<div class="card empty">You have no investments yet.<br><br><button class="btn sm" onclick="go(\'prod\')">Browse products</button></div>'}
-  <h3>Withdrawal requests</h3><div class="card">${rd.length?rd.map(r=>`<div class="row"><div><b>${inr(r.amount)}</b><br><small style="color:var(--mut)">${fd(r.created)} ${esc(r.note)}</small></div><span class="pill ${r.status}">${r.status}</span></div>`).join(''):'<div class="empty">No withdrawal requests.</div>'}</div>`;
-}
-async function payNow(id,b){let wp=true;try{const pm=await call('paymentMode');if(pm.mode==='api')wp=confirm('Pay from your wallet?\n\nOK = Wallet balance\nCancel = UPI / Card / Net Banking')}catch(e){toast(e.message);return}act(b,async()=>{const o=await call('pay',{invId:id,payWith:wp?'WALLET':'ONLINE'});if(o.wallet){toast('Paid from wallet');go('inv')}else checkout(o)})}
-async function sub(id,op){try{await call('setSubscription',{invId:id,op});go('inv')}catch(e){toast(e.message)}}
-function redeem(id,max){const m=modal(`<h3 style="margin-top:0">Withdraw</h3><div id="err" class="err" hidden></div><p class="sub">Available: ${inr(max)}</p><label>Amount (₹)</label><input id="am" type="number" max="${max}"><button class="btn" style="width:100%" id="go">Request withdrawal</button>`);$('#go').onclick=e=>act(e.target,async()=>{await call('redeem',{invId:id,amount:$('#am').value});m.remove();toast('Request sent');go('inv')})}
-/* ===== Investment Transaction + 3-option Withdraw (added) ===== */
-const IVX=`<button type="button" class="iv-x" aria-label="Close" onclick="this.closest('.modal').remove()">×</button>`;
-async function invTx(id){
-  const m=modal(`<div class="iv-hd"><div class="iv-t">Transactions</div>${IVX}</div><div class="empty">Loading…</div>`);
-  try{
-    const d=await call('invTxns',{invId:id}),s=d.summary;
-    m.querySelector('.card').innerHTML=`<div class="iv-hd"><div class="iv-t">Transactions</div>${IVX}</div>
-    <div style="background:#f6f4ff;border-radius:14px;padding:4px 14px;margin-bottom:12px">
-     <div class="row"><span>Total invested</span><b>${inr2(s.invested)}</b></div>
-     <div class="row"><span>Interest earned</span><b style="color:var(--grn)">+${inr2(s.growth)}</b></div>
-     <div class="row"><span>Total withdrawn</span><b style="color:var(--red)">−${inr2(s.withdrawn)}</b></div>
-     <div class="row"><span>Current balance</span><b>${inr2(s.balance)}</b></div>
-     <div class="row"><span>Available to withdraw</span><b>${inr2(s.redeemable)}</b></div></div>
-    ${d.rows.length?d.rows.map(t=>{const cr=t.dir==='CR',rej=['Rejected','Failed'].includes(t.status),c=rej?'var(--mut)':cr?'var(--grn)':'var(--red)';
-      return `<div class="row" style="align-items:flex-start"><div style="min-width:0"><b>${esc(t.desc)}</b><br><small style="color:var(--mut)">${esc(t.type)} · ${fd(t.date)}${t.id?'<br>ID: '+esc(t.id):''}</small></div><div style="text-align:right;white-space:nowrap"><b style="color:${c}">${cr?'+':'−'}${inr2(t.amount)}</b><br><span class="pill ${esc(t.status)}">${esc(t.status)}</span><br><small style="color:var(--mut)">Bal ${inr2(t.bal)}</small></div></div>`}).join(''):'<div class="empty">No transactions yet.</div>'}`;
-  }catch(e){m.remove();toast(e.message)}
-}
-async function redeemOpt(id){
-  const m=modal(`<div class="empty">Loading…</div>`);
-  let w;try{w=await call('invWdInfo',{invId:id})}catch(e){m.remove();toast(e.message);return}
-  let K='CUSTOM';
-  m.querySelector('.card').innerHTML=`<div class="iv-hd"><div class="iv-t">Withdraw</div>${IVX}</div><div id="err" class="err" hidden></div>
-  <div style="background:#f6f4ff;border-radius:14px;padding:4px 14px;margin-bottom:12px"><div class="row"><span>Available (principal + interest)</span><b>${inr2(w.redeemable)}</b></div><div class="row"><span>Interest available</span><b style="color:var(--grn)">${inr2(w.interest)}</b></div></div>
-  <div class="iv-f" id="wk" style="--n:3"><button type="button" data-k="CUSTOM" class="on">Custom amount</button><button type="button" data-k="INTEREST">Only interest</button><button type="button" data-k="ALL">Full amount</button></div>
-  <label>Amount (₹)</label><input id="am" type="number" inputmode="decimal" placeholder="Enter amount"><p class="sub" id="wi"></p>
-  <button class="btn" style="width:100%" id="go">Request withdrawal</button>`;
-  const pick=k=>{K=k;m.querySelectorAll('#wk button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
-    const a=$('#am');a.disabled=k!=='CUSTOM';a.value=k==='INTEREST'?w.interest:k==='ALL'?w.redeemable:'';
-    $('#wi').textContent=k==='INTEREST'&&!(w.interest>0)?'No interest is available to withdraw yet.':''};
-  m.querySelectorAll('#wk button').forEach(b=>b.onclick=()=>pick(b.dataset.k));
-  $('#go').onclick=e=>act(e.target,async()=>{await call('redeem2',{invId:id,kind:K,amount:$('#am').value});m.remove();toast('Withdrawal request sent');go('inv')});
-}
-async function notif(){
-  const l=await call('notifications');api('markRead');
-  $('#main').innerHTML=`<h2>Notifications</h2><div class="card">${l.length?l.map(n=>`<div class="row" style="align-items:flex-start"><div><b>${esc(n.title)}</b>${n.read?'':' <span class="pill">new</span>'}<br><span class="sub" style="margin:0">${esc(n.msg)}</span></div><small style="color:var(--mut);white-space:nowrap">${fd(n.created)}</small></div>`).join(''):'<div class="empty">You are all caught up.</div>'}</div>`;
-}
-/* ===== KYC document upload helpers ===== */
-const KYC_DOCS=[['aadhaar','Aadhaar card','Front side, clear photo'],['pan','PAN card','Clear photo of your PAN card'],['bank','Bank passbook','First page with your name & account no., or a cancelled cheque']];
-const KYC_FILES={};
-function kycFmtAadhaar(i){const d=i.value.replace(/\D/g,'').slice(0,12);i.value=d.replace(/(\d{4})(?=\d)/g,'$1 ')}
-function kycShow(k,name,prev){
-  const b=document.getElementById('up_'+k);if(!b)return;
-  b.classList.add('ok');b.querySelector('.uth').innerHTML=prev?`<img src="${prev}" alt="">`:'📄';
-  b.querySelector('.ut small').textContent=name;b.querySelector('.uc').textContent='Change';
-}
-function kycPick(k,inp){
-  const f=inp.files&&inp.files[0];if(!f)return;
-  const isPdf=f.type==='application/pdf'||/\.pdf$/i.test(f.name);
-  if(isPdf){
-    if(f.size>2.5*1024*1024){toast('PDF is too large (max 2.5 MB)');inp.value='';return}
-    const r=new FileReader();r.onload=()=>{KYC_FILES[k]={mime:'application/pdf',data:String(r.result).split(',')[1]};kycShow(k,f.name,'')};r.onerror=()=>toast('Could not read the file');r.readAsDataURL(f);return;
+Object.assign(H, {
+  wallet(u) {
+    const rows = wAll(u.id), s = wSum(rows), inv = all('Transactions').filter(t => t.userId === u.id && t.status === 'Success').reduce((a, t) => a + Number(t.amount), 0);
+    return Object.assign(s, { balance: s.bal, invested: rnd2(inv), limits: { wdMin: WD_MIN, wdMax: WD_MAX, addMin: ADD_MIN, addMax: ADD_MAX }, bank: u.acct ? 'XXXX' + String(u.acct).slice(-4) + ' · ' + u.ifsc : '', withdrawals: rows.filter(t => t.type === 'Money Withdrawn').reverse().slice(0, 10).map(t => ({ id: t.id, amount: Number(t.amount), status: t.status, created: t.created })) });
+  },
+  walletTxns(u) { return wAll(u.id).reverse().map(t => ({ id: t.id, type: t.type, dir: t.dir, amount: Number(t.amount), status: t.status, desc: t.desc, created: t.created })); },
+  walletAdd(u, p) {
+    const amt = rnd2(p.amount);
+    if (!(amt >= ADD_MIN && amt <= ADD_MAX)) throw new Error('Enter an amount between ₹' + ADD_MIN + ' and ₹' + ADD_MAX);
+        prop('RZP_KEY_ID'); prop('RZP_KEY_SECRET'); // stop early if the gateway is not configured, before any record is created
+    const t = wAdd({ userId: u.id, type: 'Money Added', dir: 'CR', amount: amt, status: 'Pending', desc: 'Wallet top-up' });
+    const r = rzpOrder(amt, t.id);
+    if (!r.o.id) { upd('WalletTxns', t.id, { status: 'Failed' }); throw new Error('Could not start payment. Try again.'); }
+    upd('WalletTxns', t.id, { orderId: r.o.id });
+    return { txnId: t.id, orderId: r.o.id, amount: r.o.amount, keyId: r.keyId, name: u.name, email: u.email, mobile: u.mobile };
+  },
+  walletConfirm(u, p) {
+    const t = find('WalletTxns', p.txnId);
+    if (!t || t.userId !== u.id || t.type !== 'Money Added') throw new Error('Transaction not found');
+    if (!rzpVerify(t.orderId, String(p.paymentId), String(p.signature))) { if (t.status === 'Pending') upd('WalletTxns', t.id, { status: 'Failed' }); note(u.id, 'Payment failed', 'We could not verify your payment of ₹' + t.amount + '.'); throw new Error('Payment verification failed'); }
+    lock(() => {
+      if (find('WalletTxns', t.id).status === 'Completed') return; // already credited – never credit twice
+      if (all('WalletTxns').some(x => x.paymentId === String(p.paymentId))) throw new Error('This payment was already credited');
+      upd('WalletTxns', t.id, { status: 'Completed', paymentId: String(p.paymentId) });
+      note(u.id, 'Money added', '₹' + t.amount + ' added to your wallet. Ref ' + t.id);
+    });
+    return true;
+  },
+  walletFailed(u, p) { const t = find('WalletTxns', p.txnId); if (t && t.userId === u.id && t.type === 'Money Added' && t.status === 'Pending') upd('WalletTxns', t.id, { status: 'Failed' }); return true; },
+  walletWithdraw(u, p) {
+        if (setting('WD_ENABLED', '1') === '0') throw new Error('Withdrawals are temporarily unavailable. Please try again later.');
+    if (u.status !== 'Active') throw new Error('Activate your account first');
+    if (u.kyc !== 'Verified') throw new Error('Complete KYC verification before withdrawing');
+    const amt = rnd2(p.amount);
+    if (!(amt >= WD_MIN)) throw new Error('Minimum withdrawal is ₹' + WD_MIN);
+    if (amt > WD_MAX) throw new Error('Maximum withdrawal is ₹' + WD_MAX + ' per request');
+    let payout;
+    if (p.method === 'UPI') { const v = String(p.upi || '').trim(); if (!/^[\w.\-]{2,}@[A-Za-z]{2,}$/.test(v)) throw new Error('Enter a valid UPI ID'); payout = 'UPI: ' + v; }
+    else { if (!u.acct) throw new Error('Add your bank details in Profile first'); payout = 'BANK: ' + u.acct + ' / ' + u.ifsc; }
+    return lock(() => {
+      const s = wSum(wAll(u.id));
+      if (amt > s.bal) throw new Error('Insufficient balance. Available ₹' + s.bal);
+      const t = wAdd({ userId: u.id, type: 'Money Withdrawn', dir: 'DR', amount: amt, status: 'Pending', desc: 'Withdrawal request', payout }); // amount is reserved immediately
+      note(u.id, 'Withdrawal requested', '₹' + amt + ' is reserved and awaiting approval. Ref ' + t.id);
+      return { id: t.id };
+    });
+  },
+  /* ----- Admin wallet ----- */
+  adm_wallets() {
+    const by = {}; all('WalletTxns').forEach(t => (by[t.userId] = by[t.userId] || []).push(t));
+    return all('Users').filter(u => u.role !== 'admin').map(u => { const s = wSum(by[u.id] || []); return { id: u.id, name: u.name, email: u.email, mobile: u.mobile, balance: s.bal, credit: s.credit, debit: s.debit, reserved: s.reserved }; });
+  },
+  adm_walletTxns(_, p) { return all('WalletTxns').filter(t => t.userId === p.userId).reverse().slice(0, 100); },
+  adm_walletAdjust(a, p) {
+    const amt = rnd2(p.amount), dir = p.dir === 'DR' ? 'DR' : 'CR', reason = String(p.reason || '').trim();
+    if (!(amt > 0)) throw new Error('Enter a valid amount');
+    if (reason.length < 3) throw new Error('A reason is required');
+    const user = find('Users', p.userId); if (!user || user.role === 'admin') throw new Error('User not found');
+    return lock(() => {
+      const s = wSum(wAll(user.id));
+      if (dir === 'DR' && amt > s.bal) throw new Error('Debit exceeds available balance (₹' + s.bal + ')');
+      const t = wAdd({ userId: user.id, type: dir === 'CR' ? 'Admin Credit' : 'Admin Debit', dir, amount: amt, desc: reason.slice(0, 200), ref: String(p.ref || '').slice(0, 60), adminId: a.id });
+      note(user.id, dir === 'CR' ? 'Wallet credited' : 'Wallet debited', '₹' + amt + (dir === 'CR' ? ' credited' : ' debited') + ' by WealthBridge. ' + reason);
+      return { id: t.id, balance: rnd2(s.bal + (dir === 'CR' ? amt : -amt)) };
+    });
+  },
+  adm_withdrawals() {
+    const us = Object.fromEntries(all('Users').map(u => [u.id, u]));
+    return all('WalletTxns').filter(t => t.type === 'Money Withdrawn').reverse().map(t => Object.assign({}, t, { user: (us[t.userId] || {}).name }));
+  },
+  adm_wdProcess(a, p) {
+    if (!['Approved', 'Rejected', 'Paid'].includes(p.status)) throw new Error('Invalid status');
+    lock(() => {
+      const t = find('WalletTxns', p.id); if (!t || t.type !== 'Money Withdrawn') throw new Error('Request not found');
+      const ok = { Pending: ['Approved', 'Rejected', 'Paid'], Approved: ['Paid', 'Rejected'] }[t.status];
+      if (!ok || !ok.includes(p.status)) throw new Error('Already ' + String(t.status).toLowerCase());
+      upd('WalletTxns', t.id, { status: p.status, adminId: a.id, ref: p.note || t.ref || '' });
+      if (p.status === 'Rejected') wAdd({ userId: t.userId, type: 'Withdrawal Reversal', dir: 'CR', amount: Number(t.amount), desc: 'Reversal of ' + t.id + (p.note ? ': ' + p.note : ''), ref: t.id, adminId: a.id });
+      note(t.userId, 'Withdrawal ' + String(p.status).toLowerCase(), '₹' + t.amount + ' withdrawal ' + String(p.status).toLowerCase() + '. ' + (p.note || ''));
+    });
+    return true;
   }
-  if(!/^image\//.test(f.type)){toast('Please choose a photo (JPG/PNG) or a PDF');inp.value='';return}
-  const img=new Image(),url=URL.createObjectURL(f);
-  img.onload=()=>{
-    const s=Math.min(1,1600/Math.max(img.width,img.height)),c=document.createElement('canvas');
-    c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);
-    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-    const d=c.toDataURL('image/jpeg',.8);URL.revokeObjectURL(url);
-    KYC_FILES[k]={mime:'image/jpeg',data:d.split(',')[1]};kycShow(k,f.name,d);
+  
+});
+/* ---- Pay investment from wallet (added) ---- */
+function payWallet(u, inv) {
+  const amt = Number(inv.amount);
+    if (setting('WALLET_PAY', '1') === '0') throw new Error('Paying from the wallet is currently turned off.');
+  return lock(() => {
+    const s = wSum(wAll(u.id));
+    if (amt > s.bal) { if (inv.status === 'Pending' && Number(inv.paid) === 0) upd('Investments', inv.id, { status: 'Cancelled' }); throw new Error('Insufficient wallet balance. Available ₹' + s.bal); }
+    const cur = find('Investments', inv.id);
+    add('Transactions', { userId: u.id, invId: cur.id, amount: amt, status: 'Success', orderId: 'WALLET', paymentId: 'WLT' + wId() });
+    wAdd({ userId: u.id, type: 'Investment Debit', dir: 'DR', amount: amt, desc: 'Investment payment', ref: cur.id });
+    const paid = Number(cur.paid) + 1, done = cur.frequency !== 'ONE_TIME' && Number(cur.totalContribs) > 0 && paid >= Number(cur.totalContribs);
+    upd('Investments', cur.id, { paid, status: done ? 'Completed' : 'Active', nextDate: cur.frequency === 'ONE_TIME' ? '' : nextFrom(cur.nextDate, cur.frequency) });
+    note(u.id, 'Payment successful', '₹' + amt + ' paid from your wallet.');
+    if (paid === 1) note(u.id, 'Investment activated', 'Your investment is now active.');
+    return { wallet: true, balance: rnd2(s.bal - amt) };
+  });
+}
+
+/* ================= PAYMENT MODE: API vs PAYMENT BUTTON (additive) =================
+   Only one mode is ever active. Mode is derived from existing GATEWAY_ENABLED (API) + new PAYBTN_ENABLED (Button).
+   Button mode switches GATEWAY_ENABLED off, so the existing prop() guard blocks every Razorpay API order on the server. */
+function payMode() {
+  if (setting('PAYBTN_ENABLED', '0') === '1' && setting('PAYBTN_CODE', '')) return 'button';
+  return setting('GATEWAY_ENABLED', '1') === '1' ? 'api' : 'none';
+}
+function cleanPayBtn(raw) {
+  const code = String(raw || '').trim();
+  if (!code) throw new Error('Paste the Razorpay Payment Button code first');
+  if (code.length > 4000) throw new Error('Code is too long');
+  if ((code.match(/<script\b/gi) || []).length !== 1) throw new Error('The code must contain exactly one Razorpay script');
+  if (!/<script\b[^>]*src\s*=\s*["']https:\/\/checkout\.razorpay\.com\/v1\/payment-button\.js["'][^>]*>\s*<\/script>/i.test(code)) throw new Error('This is not a valid Razorpay Payment Button code');
+  if (!/data-payment_button_id\s*=\s*["']pl_[A-Za-z0-9]+["']/i.test(code)) throw new Error('Payment button id (pl_...) not found in the code');
+  const tags = (code.match(/<\/?\s*[a-z0-9]+/gi) || []).map(t => t.replace(/[<\/\s]/g, '').toLowerCase());
+  if (tags.some(t => t !== 'form' && t !== 'script')) throw new Error('Only the Razorpay form and script are allowed');
+  if (/<form\s+/i.test(code) || /\son[a-z]+\s*=/i.test(code)) throw new Error('Unsupported attributes found in the code');
+  return code;
+}
+Object.assign(H, {
+  paymentMode() { const m = payMode(); return { mode: m, buttonCode: m === 'button' ? setting('PAYBTN_CODE', '') : '' }; },
+  adm_savePayBtn(a, p) {
+    putProps({ PAYBTN_CODE: cleanPayBtn(p.code) }); setLog(a, 'gateway', 'Saved Razorpay Payment Button code');
+    return true;
+  },
+  adm_payBtnToggle(a, p) {
+    const on = p.enabled === true || p.enabled === '1' || p.enabled === 1;
+    if (on) {
+      if (!setting('PAYBTN_CODE', '')) throw new Error('Save your Payment Button code first');
+      putProps({ PAYBTN_ENABLED: '1', GATEWAY_ENABLED: '0' }); // API automatically disabled
+    } else putProps({ PAYBTN_ENABLED: '0' });
+    setLog(a, 'gateway', on ? 'Payment Button enabled (API disabled)' : 'Payment Button disabled');
+    return true;
+  }
+});
+/* ================= PAYMENTS SHEET -> WALLET AUTO CREDIT (additive) =================
+   Reads the "Payments" sheet (Razorpay webhook data) and credits every CAPTURED payment to the wallet of the
+   user whose mobile matches the "Contact" column. No matching Active user yet -> it waits and is credited
+   automatically when that user registers and verifies email. Each Payment ID is credited only once. */
+const PAYSYNC_REQUIRE_KYC = false; // true = credit only after admin marks the user's KYC as Verified
+const last10 = v => String(v == null ? '' : v).replace(/\D/g, '').slice(-10);
+const tsStr = v => v instanceof Date ? Utilities.formatDate(v, 'Asia/Kolkata', 'yyyy-MM-dd HH:mm:ss') : String(v || '').trim();
+
+function syncPaymentCredits(onlyMobile) {
+  try { syncIntentInvestments(onlyMobile); } catch (e) { console.error('intent sync: ' + e.message); }
+  const ps = sh('Payments'); if (!ps) return { error: 'Payments sheet not found' };
+  const from = setting('PAYSYNC_FROM', ''); if (!from) return { error: 'Run startPaymentSync() once first' };
+  const v = ps.getDataRange().getValues(); if (v.length < 2) return { credited: 0, waiting: 0, ambiguous: 0 };
+  const h = v[0].map(x => String(x).trim().toLowerCase()), col = f => h.findIndex(f);
+  const c = { pid: col(x => x === 'payment id'), oid: col(x => x === 'order id'), amt: col(x => x.indexOf('amount') === 0), cur: col(x => x === 'currency'), st: col(x => x === 'status'), ct: col(x => x === 'contact'), ev: col(x => x === 'webhook event'), cr: col(x => x === 'created at') };
+  if ([c.pid, c.oid, c.amt, c.st, c.ct, c.cr].some(i => i < 0)) return { error: 'Payments sheet headers not recognised' };
+  const refunded = {}, cand = {}, om = onlyMobile ? last10(onlyMobile) : '';
+  for (let i = 1; i < v.length; i++) {
+    const r = v[i], pid = String(r[c.pid] || '').trim(); if (!/^pay_/.test(pid)) continue;
+    const st = String(r[c.st] || '').trim().toLowerCase(), ev = c.ev >= 0 ? String(r[c.ev] || '').trim().toLowerCase() : '';
+    if (st.indexOf('refund') >= 0 || ev.indexOf('refund') === 0) { refunded[pid] = 1; continue; }
+    if (st !== 'captured' || (ev && ev !== 'payment.captured')) continue;
+    if (c.cur >= 0 && r[c.cur] && String(r[c.cur]).trim().toUpperCase() !== 'INR') continue;
+    const amt = rnd2(r[c.amt]); if (!(amt > 0)) continue;
+    const day = tsStr(r[c.cr]); if (!/^\d{4}-\d{2}-\d{2}/.test(day) || day.slice(0, 10) < from) continue;
+    const m = last10(r[c.ct]); if (m.length !== 10 || (om && m !== om)) continue;
+    cand[pid] = { oid: String(r[c.oid] || '').trim(), amt, m };
+  }
+  const pids = Object.keys(cand).filter(p => !refunded[p]);
+  if (!pids.length) return { credited: 0, waiting: 0, ambiguous: 0 };
+  return lock(() => {
+    const donePid = new Set(), doneOid = new Set();
+    all('WalletTxns').concat(all('Transactions')).forEach(t => { if (t.paymentId) donePid.add(String(t.paymentId)); if (t.orderId) doneOid.add(String(t.orderId)); });
+    const byMobile = {}; all('Users').filter(u => u.role !== 'admin' && u.mobile).forEach(u => (byMobile[last10(u.mobile)] = byMobile[last10(u.mobile)] || []).push(u));
+    let credited = 0, waiting = 0, ambiguous = 0;
+    pids.forEach(pid => {
+      const p = cand[pid];
+      if (donePid.has(pid) || (p.oid && doneOid.has(p.oid))) return; // already credited, or an app-created (API) order
+      const us = byMobile[p.m] || [];
+      if (!us.length) { waiting++; return; }
+      if (us.length > 1) { ambiguous++; return; }
+      const u = us[0];
+      if (u.status !== 'Active' || (PAYSYNC_REQUIRE_KYC && u.kyc !== 'Verified')) { waiting++; return; }
+      if (credited >= 50) return;
+      wAdd({ userId: u.id, type: 'Money Added', dir: 'CR', amount: p.amt, desc: 'Razorpay payment button top-up', ref: 'PAYBTN', orderId: p.oid, paymentId: pid });
+      note(u.id, 'Money added', '₹' + p.amt + ' added to your wallet from your Razorpay payment. Ref ' + pid);
+      donePid.add(pid); credited++;
+    });
+    return { credited, waiting, ambiguous };
+  });
+}
+/* Run ONCE from the editor: sets the start date (today) and REMOVES any old 5-minute sync trigger. No trigger is created. */
+function startPaymentSync() {
+  if (!setting('PAYSYNC_FROM', '')) putProps({ PAYSYNC_FROM: Utilities.formatDate(new Date(), 'Asia/Kolkata', 'yyyy-MM-dd') });
+  ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === 'paymentSyncJob').forEach(t => ScriptApp.deleteTrigger(t));
+}
+/* ---- Wallet refresh button: credits THIS user's captured Razorpay payments (matched by mobile) on demand ---- */
+Object.assign(H, {
+  walletRefresh(u) {
+    const ck = 'wr_' + u.id;
+    if (cache().get(ck)) throw new Error('Please wait a few seconds before refreshing again.');
+    cache().put(ck, '1', 15);
+    if (!u.mobile) throw new Error('No mobile number on your account.');
+    const before = wSum(wAll(u.id)).bal;
+    const r = syncPaymentCredits(u.mobile);
+    if (r.error) throw new Error('Refresh is not available right now. Please contact support.');
+    return { added: rnd2(wSum(wAll(u.id)).bal - before), credited: r.credited || 0, waiting: r.waiting || 0, ambiguous: r.ambiguous || 0 };
+  }
+});
+/* ================= DIRECT INVEST VIA PAYMENT BUTTON – Index1 page (additive – nothing above is changed) =================
+   Flow: visitor picks a plan on Index1 -> an "intent" (mobile + plan + amount) is saved -> visitor pays with the Razorpay
+   Payment Button -> syncIntentInvestments() matches the captured payment (same mobile + same amount, within the time window)
+   and creates the investment DIRECTLY (no wallet credit). If a payment does not match an intent, the old wallet auto-credit
+   works exactly as before. */
+T.PayIntents = ['id','userId','mobile','productId','frequency','amount','lockDays','invId','status','created','paymentId','note'];
+PUBLIC.push('pubProducts', 'pubIntent', 'pubPayStatus');   // public (no login) actions used by Index1
+const INTENT_WINDOW_MIN = 60;                               // a payment must arrive within 60 min after the user pressed "Continue to payment"
+
+function intentSheet() {
+  const ss = SpreadsheetApp.getActive();
+  let s = ss.getSheetByName('PayIntents');
+  if (!s) {
+    s = ss.insertSheet('PayIntents');
+    s.getRange(1, 1, 1, T.PayIntents.length).setValues([T.PayIntents]).setFontWeight('bold'); s.setFrozenRows(1);
+    T.PayIntents.forEach((h, i) => { if (['created', 'mobile'].includes(h)) s.getRange(1, i + 1, s.getMaxRows(), 1).setNumberFormat('@'); });
+  }
+  return s;
+}
+function ptime(v) {
+  if (v instanceof Date) return v.getTime();
+  const m = /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})(:\d{2})?/.exec(String(v || '').trim());
+  return m ? Date.parse(m[1] + 'T' + m[2] + (m[3] || ':00') + '+05:30') : NaN;
+}
+/* Captured, non-refunded Razorpay payments from the Payments sheet (same rules as syncPaymentCredits) */
+function readCaptured(om) {
+  const ps = sh('Payments'), from = setting('PAYSYNC_FROM', ''); if (!ps || !from) return [];
+  const v = ps.getDataRange().getValues(); if (v.length < 2) return [];
+  const h = v[0].map(x => String(x).trim().toLowerCase()), col = f => h.findIndex(f);
+  const c = { pid: col(x => x === 'payment id'), oid: col(x => x === 'order id'), amt: col(x => x.indexOf('amount') === 0), cur: col(x => x === 'currency'), st: col(x => x === 'status'), ct: col(x => x === 'contact'), ev: col(x => x === 'webhook event'), cr: col(x => x === 'created at') };
+  if ([c.pid, c.oid, c.amt, c.st, c.ct, c.cr].some(i => i < 0)) return [];
+  const refunded = {}, cand = {};
+  for (let i = 1; i < v.length; i++) {
+    const r = v[i], pid = String(r[c.pid] || '').trim(); if (!/^pay_/.test(pid)) continue;
+    const st = String(r[c.st] || '').trim().toLowerCase(), ev = c.ev >= 0 ? String(r[c.ev] || '').trim().toLowerCase() : '';
+    if (st.indexOf('refund') >= 0 || ev.indexOf('refund') === 0) { refunded[pid] = 1; continue; }
+    if (st !== 'captured' || (ev && ev !== 'payment.captured')) continue;
+    if (c.cur >= 0 && r[c.cur] && String(r[c.cur]).trim().toUpperCase() !== 'INR') continue;
+    const amt = rnd2(r[c.amt]); if (!(amt > 0)) continue;
+    const day = tsStr(r[c.cr]); if (!/^\d{4}-\d{2}-\d{2}/.test(day) || day.slice(0, 10) < from) continue;
+    const m = last10(r[c.ct]); if (m.length !== 10 || (om && m !== om)) continue;
+    cand[pid] = { pid, oid: String(r[c.oid] || '').trim(), amt, m, t: ptime(r[c.cr]), day: day.slice(0, 10) };
+  }
+  return Object.keys(cand).filter(p => !refunded[p]).map(p => cand[p]);
+}
+/* Turn a matched payment into a real investment (or the next instalment of an existing one) */
+function applyIntent(u, it, hit) {
+  let inv = it.invId ? find('Investments', it.invId) : null;
+  if (it.invId && (!inv || inv.userId !== u.id)) { upd('PayIntents', it.id, { status: 'Rejected', note: 'Investment not found' }); return false; }
+  if (!inv) {
+    const pr = find('Products', it.productId); if (!pr) { upd('PayIntents', it.id, { status: 'Rejected', note: 'Product not found' }); return false; }
+    const hold = it.frequency === 'HOLD', months = Number(pr.tenureMonths) || 0;
+    const total = { ONE_TIME: 1, HOLD: 1, DAILY: months * 30, EVERY_15_DAYS: months * 2, MONTHLY: months }[it.frequency];
+    inv = add('Investments', { userId: u.id, productId: pr.id, frequency: hold ? 'ONE_TIME' : it.frequency, mode: hold ? 'HOLD' : '', lockDays: hold ? Number(it.lockDays) : '', amount: Number(it.amount), totalContribs: total, paid: 0, failed: 0, nextDate: today(), status: 'Pending' });
+  }
+  add('Transactions', { userId: u.id, invId: inv.id, amount: hit.amt, status: 'Success', orderId: hit.oid, paymentId: hit.pid });
+  const paid = Number(inv.paid) + 1, done = inv.frequency !== 'ONE_TIME' && Number(inv.totalContribs) > 0 && paid >= Number(inv.totalContribs);
+  upd('Investments', inv.id, { paid, status: done ? 'Completed' : 'Active', nextDate: inv.frequency === 'ONE_TIME' ? '' : nextFrom(inv.nextDate, inv.frequency) });
+  note(u.id, 'Payment successful', '₹' + hit.amt + ' received. Ref ' + hit.pid);
+  if (paid === 1) note(u.id, 'Investment activated', 'Your investment is now active.');
+  upd('PayIntents', it.id, { status: 'Done', paymentId: hit.pid, invId: inv.id });
+  return true;
+}
+/* Match pending intents with captured payments. Safe to call any time; each Payment ID is used only once. */
+function syncIntentInvestments(onlyMobile) {
+  if (!sh('PayIntents')) return { done: 0 };
+  const om = onlyMobile ? last10(onlyMobile) : '', mine = () => all('PayIntents').filter(i => i.status === 'Pending' && (!om || last10(i.mobile) === om));
+  if (!mine().length) return { done: 0 };
+  const cands = readCaptured(om); if (!cands.length) return { done: 0 };
+  return lock(() => {
+    const donePid = new Set(), doneOid = new Set();
+    all('WalletTxns').concat(all('Transactions')).forEach(t => { if (t.paymentId) donePid.add(String(t.paymentId)); if (t.orderId) doneOid.add(String(t.orderId)); });
+    const byMobile = {}; all('Users').filter(u => u.role !== 'admin' && u.mobile).forEach(u => (byMobile[last10(u.mobile)] = byMobile[last10(u.mobile)] || []).push(u));
+    let done = 0;
+    mine().sort((a, b) => new Date(a.created) - new Date(b.created)).forEach(it => {
+      const m = last10(it.mobile), us = byMobile[m] || [];
+      if (us.length !== 1 || us[0].status !== 'Active') return;          // wait until the account exists and is active (same rule as wallet sync)
+      const t0 = new Date(it.created).getTime(), d0 = Utilities.formatDate(new Date(it.created), 'Asia/Kolkata', 'yyyy-MM-dd');
+      const hit = cands.find(p => p.m === m && p.amt === rnd2(it.amount) && !donePid.has(p.pid) && !(p.oid && doneOid.has(p.oid)) &&
+        (isNaN(p.t) ? p.day === d0 : (p.t >= t0 - 120000 && p.t <= t0 + INTENT_WINDOW_MIN * 60000)));
+      if (!hit) return;
+      if (applyIntent(us[0], it, hit)) { donePid.add(hit.pid); if (hit.oid) doneOid.add(hit.oid); done++; }
+    });
+    return { done };
+  });
+}
+/* Save the user's choice, then show the Payment Button. Used by Index1 (logged-in or not). */
+function makeIntent(u, p) {
+  const mode = payMode();
+  if (mode === 'api') return { mode: 'api' };                              // API mode: Index1 uses the normal invest() flow
+  if (mode !== 'button') throw new Error('Online payments are currently unavailable. Please try again later.');
+  if (setting('INV_ENABLED', '1') === '0') throw new Error('New investments are temporarily unavailable.');
+  const mobile = u ? last10(u.mobile) : last10(p.mobile);
+  if (!/^[6-9]\d{9}$/.test(mobile)) throw new Error('Enter a valid 10-digit mobile number');
+  const gk = 'pi_g', rk = 'pi_' + mobile;
+  if (Number(cache().get(gk) || 0) >= 300 || Number(cache().get(rk) || 0) >= 8) throw new Error('Too many attempts. Please try again after some time.');
+  cache().put(gk, String(Number(cache().get(gk) || 0) + 1), 600); cache().put(rk, String(Number(cache().get(rk) || 0) + 1), 3600);
+  let o;
+  if (p.invId) {                                                            // next instalment of an existing investment
+    if (!u) throw new Error('Please sign in first');
+    const inv = find('Investments', p.invId); if (!inv || inv.userId !== u.id) throw new Error('Investment not found');
+    if (['Cancelled', 'Completed', 'Paused'].includes(inv.status) || (inv.frequency === 'ONE_TIME' && Number(inv.paid) >= 1)) throw new Error('Nothing due on this investment');
+    o = { productId: inv.productId, frequency: inv.mode === 'HOLD' ? 'HOLD' : inv.frequency, amount: Number(inv.amount), lockDays: inv.lockDays || '', invId: inv.id };
+  } else {                                                                  // new investment – same checks as invest()
+    const pr = find('Products', p.productId), amt = rnd2(p.amount), f = String(p.frequency || '');
+    if (!pr || pr.status !== 'Active') throw new Error('Product unavailable');
+    if (!FREQ[f] || String(pr.frequencies).split(',').indexOf(f) < 0) throw new Error('Frequency not offered for this product');
+    if (!(amt > 0)) throw new Error('Enter a valid amount');
+    if (!(amt >= Number(pr.minAmount))) throw new Error('Minimum amount is ₹' + pr.minAmount);
+    const cfg = cfgOf(pr)[f] || {}, hold = f === 'HOLD', lockDays = hold ? Number(p.lockDays) : 0;
+    if (cfg.enabled === false) throw new Error('This option is currently disabled');
+    if (cfg.min && amt < Number(cfg.min)) throw new Error('Minimum amount is ₹' + cfg.min);
+    if (cfg.max && amt > Number(cfg.max)) throw new Error('Maximum amount is ₹' + cfg.max);
+    if (hold) { const r = (cfg.rules || []).find(x => x.on !== false && Number(x.days) === lockDays); if (!r) throw new Error('Choose a valid hold period'); if (r.min && amt < Number(r.min)) throw new Error('Minimum for this hold is ₹' + r.min); if (r.max && amt > Number(r.max)) throw new Error('Maximum for this hold is ₹' + r.max); }
+    o = { productId: pr.id, frequency: f, amount: amt, lockDays: hold ? lockDays : '', invId: '' };
+  }
+  intentSheet();
+  try { syncIntentInvestments(mobile); } catch (e) {}                       // settle an earlier paid intent first
+  const it = lock(() => {
+    all('PayIntents').filter(i => i.status === 'Pending' && last10(i.mobile) === mobile).forEach(i => upd('PayIntents', i.id, { status: 'Superseded' }));
+    return add('PayIntents', Object.assign({ userId: u ? u.id : '', mobile, status: 'Pending' }, o));
+  });
+  return { mode: 'button', intentId: it.id, amount: o.amount, mobile, buttonCode: setting('PAYBTN_CODE', '') };
+}
+Object.assign(H, {
+  pubProducts() { return H.products(); },                                   // public: product list for Index1
+  pubIntent(_, p) { return makeIntent(null, p); },                          // public: visitor not logged in
+  invIntent(u, p) { return makeIntent(u, p); },                             // logged-in user (new investment or next instalment)
+  invSync(u) { const k = 'is_' + u.id; if (cache().get(k)) return { done: 0 }; cache().put(k, '1', 10); return syncIntentInvestments(u.mobile); },
+  pubPayStatus(_, p) {                                                      // public: the payer's browser checks its own intent by its secret id
+    const id = String(p.intentId || ''); let it = sh('PayIntents') && id ? find('PayIntents', id) : null;
+    if (!it) throw new Error('Request not found');
+    if (it.status === 'Pending' && !cache().get('ps_' + id)) { cache().put('ps_' + id, '1', 8); syncIntentInvestments(it.mobile); it = find('PayIntents', id); }
+    return { status: it.status };
+  }
+});
+/* ================= INVESTMENT TRANSACTIONS + 3-OPTION WITHDRAW (additive) ================= */
+function invWd(uid, inv) {
+  const redeemed = rnd2(all('Redemptions').filter(r => r.userId === uid && r.invId === inv.id && r.status !== 'Rejected').reduce((s, r) => s + Number(r.amount), 0));
+  const redeemable = rnd2(inv.redeemable);
+  return { redeemed, redeemable, interest: Math.max(0, rnd2(Math.min(redeemable, Number(inv.growth) - redeemed))) };
+}
+Object.assign(H, {
+  invWdInfo(u, p) {
+    const inv = H.myInvestments(u).find(i => i.id === p.invId);
+    if (!inv) throw new Error('Investment not found');
+    return invWd(u.id, inv);
+  },
+  invTxns(u, p) {
+    const inv = H.myInvestments(u).find(i => i.id === p.invId);
+    if (!inv) throw new Error('Investment not found');
+    const w = invWd(u.id, inv), rows = [];
+    all('Transactions').filter(t => t.userId === u.id && t.invId === inv.id && t.status === 'Success').forEach(t => rows.push({ id: t.id, date: t.created, type: 'Investment', desc: 'Investment payment', dir: 'CR', amount: Number(t.amount), status: 'Success' }));
+    if (Number(inv.growth) > 0) rows.push({ id: '', date: new Date().toISOString(), type: 'Interest', desc: 'Interest earned till today', dir: 'CR', amount: Number(inv.growth), status: 'Accrued' });
+    all('Redemptions').filter(r => r.userId === u.id && r.invId === inv.id).forEach(r => rows.push({ id: r.id, date: r.created, type: 'Withdrawal', desc: 'Withdrawal request' + (r.status !== 'Pending' && r.note ? ' - ' + r.note : ''), dir: 'DR', amount: Number(r.amount), status: r.status }));
+    rows.sort((a, b) => new Date(a.date) - new Date(b.date));
+    let bal = 0;
+    rows.forEach(r => { if (!['Rejected', 'Failed'].includes(r.status)) bal += r.dir === 'CR' ? r.amount : -r.amount; r.bal = rnd2(bal); });
+    return { summary: { invested: inv.invested, growth: inv.growth, withdrawn: w.redeemed, balance: rnd2(Math.max(0, inv.value - w.redeemed)), redeemable: w.redeemable, interest: w.interest }, rows: rows.reverse() };
+  },
+  redeem2(u, p) {
+    if (u.kyc !== 'Verified') throw new Error('KYC required');
+    const kind = ['CUSTOM', 'INTEREST', 'ALL'].includes(p.kind) ? p.kind : 'CUSTOM';
+    return lock(() => {
+      const inv = H.myInvestments(u).find(i => i.id === p.invId);
+      if (!inv) throw new Error('Investment not found');
+      const w = invWd(u.id, inv);
+      let amt;
+      if (kind === 'INTEREST') { amt = w.interest; if (!(amt > 0)) throw new Error('No interest available to withdraw yet'); }
+      else if (kind === 'ALL') { amt = w.redeemable; if (!(amt > 0)) throw new Error('Nothing available to withdraw'); }
+      else { amt = rnd2(p.amount); if (!(amt > 0)) throw new Error('Enter a valid amount'); if (amt > w.redeemable) throw new Error('Amount exceeds withdrawable balance (₹' + w.redeemable + ')'); }
+      add('Redemptions', { userId: u.id, invId: inv.id, amount: amt, status: 'Pending', note: '' });
+      note(u.id, 'Redemption requested', '₹' + amt + ' withdrawal is awaiting review.');
+      return { amount: amt };
+    });
+  }
+});
+/* ================= DIRECT INVESTMENT TRANSACTIONS (additive) ================= */
+Object.assign(H, {
+  directTxns(u) {
+    const inv = Object.fromEntries(all('Investments').filter(i => i.userId === u.id).map(i => [i.id, i]));
+    const pm = Object.fromEntries(all('Products').map(x => [x.id, x.name]));
+    const nm = id => pm[(inv[id] || {}).productId] || 'Investment';
+    const rows = [];
+    all('Transactions').filter(t => t.userId === u.id && String(t.orderId) !== 'WALLET').forEach(t =>
+      rows.push({ id: t.id, type: 'Investment Payment', dir: 'DR', amount: Number(t.amount), status: t.status, desc: nm(t.invId) + ' - investment payment', created: t.created }));
+    all('Redemptions').filter(r => r.userId === u.id).forEach(r =>
+      rows.push({ id: r.id, type: 'Investment Withdrawal', dir: 'CR', amount: Number(r.amount), status: r.status, desc: nm(r.invId) + ' - withdrawal' + (r.status !== 'Pending' && r.note ? ' (' + r.note + ')' : ''), created: r.created }));
+    rows.sort((a, b) => new Date(b.created) - new Date(a.created));
+    return rows;
+  }
+});
+/* ================= WALLET LEDGER + DIRECT VIEW (additive) ================= */
+Object.assign(H, {
+  walletLedger(u) {
+    let bal = 0;
+    const rows = wAll(u.id).map(t => {
+      const a = Number(t.amount);
+      if (t.dir === 'CR' && t.status === 'Completed') bal += a;
+      if (t.dir === 'DR' && t.status !== 'Failed') bal -= a;
+      return { id: t.id, type: t.type, dir: t.dir, amount: a, status: t.status, desc: t.desc, created: t.created, bal: rnd2(bal) };
+    });
+    return rows.reverse();
+  },
+  directView(u) {
+    const mine = H.myInvestments(u), txs = all('Transactions').filter(t => t.userId === u.id);
+    const isDir = t => String(t.orderId) !== 'WALLET';
+    const dIds = new Set(txs.filter(t => t.status === 'Success' && isDir(t)).map(t => t.invId));
+    const inv = mine.filter(i => dIds.has(i.id)), nm = id => (mine.find(x => x.id === id) || {}).product || 'Investment';
+    const rows = [];
+    txs.filter(t => dIds.has(t.invId) && isDir(t)).forEach(t => rows.push({ id: t.id, type: 'Investment Payment', dir: 'CR', amount: Number(t.amount), status: t.status, desc: nm(t.invId) + ' - investment payment', created: t.created }));
+    const growth = rnd2(inv.reduce((s, i) => s + Number(i.growth), 0));
+    if (growth > 0) rows.push({ id: '', type: 'Interest', dir: 'CR', amount: growth, status: 'Accrued', desc: 'Interest earned till today', created: new Date().toISOString() });
+    all('Redemptions').filter(r => r.userId === u.id && dIds.has(r.invId)).forEach(r => rows.push({ id: r.id, type: 'Investment Withdrawal', dir: 'DR', amount: Number(r.amount), status: r.status, desc: nm(r.invId) + ' - withdrawal' + (r.status !== 'Pending' && r.note ? ' (' + r.note + ')' : ''), created: r.created }));
+    rows.sort((a, b) => new Date(a.created) - new Date(b.created));
+    let bal = 0, invested = 0, withdrawn = 0;
+    rows.forEach(r => {
+      const on = r.dir === 'CR' ? ['Success', 'Accrued'].includes(r.status) : !['Rejected', 'Failed'].includes(r.status);
+      if (on) { bal += r.dir === 'CR' ? r.amount : -r.amount; if (r.dir === 'DR') withdrawn += r.amount; else if (r.type === 'Investment Payment') invested += r.amount; }
+      r.bal = rnd2(Math.max(0, bal));
+    });
+    return { summary: { invested: rnd2(invested), interest: growth, withdrawn: rnd2(withdrawn), balance: rnd2(Math.max(0, invested + growth - withdrawn)), redeemable: rnd2(inv.reduce((s, i) => s + Number(i.redeemable), 0)) }, rows: rows.reverse() };
+  }
+});
+/* ================= PUBLIC PAYMENT BUTTON for Index1 (additive) ================= */
+PUBLIC.push('pubPayBtn');
+Object.assign(H, {
+  pubPayBtn() { const m = payMode(); return { mode: m, buttonCode: m === 'button' ? setting('PAYBTN_CODE', '') : '' }; }
+});
+
+/* ================= DIRECT VIEW v2: all investments ledger (additive, overrides directView) ================= */
+Object.assign(H, {
+  directView(u) {
+    const mine = H.myInvestments(u), nm = id => (mine.find(x => x.id === id) || {}).product || 'Investment';
+    const ids = new Set(mine.map(i => i.id)), rows = [];
+    all('Transactions').filter(t => t.userId === u.id && ids.has(t.invId)).forEach(t =>
+      rows.push({ id: t.id, type: 'Investment Payment', dir: 'CR', amount: Number(t.amount), status: t.status, desc: nm(t.invId) + ' - investment payment', created: t.created }));
+    mine.forEach(i => { if (Number(i.growth) > 0) rows.push({ id: '', type: 'Interest', dir: 'CR', amount: Number(i.growth), status: 'Accrued', desc: i.product + ' - interest earned till today', created: new Date().toISOString() }); });
+    all('Redemptions').filter(r => r.userId === u.id && ids.has(r.invId)).forEach(r =>
+      rows.push({ id: r.id, type: 'Investment Withdrawal', dir: 'DR', amount: Number(r.amount), status: r.status, desc: nm(r.invId) + ' - withdrawal' + (r.status !== 'Pending' && r.note ? ' (' + r.note + ')' : ''), created: r.created }));
+    rows.sort((a, b) => new Date(a.created) - new Date(b.created));
+    let bal = 0, invested = 0, interest = 0, withdrawn = 0;
+    rows.forEach(r => {
+      const on = r.dir === 'CR' ? ['Success', 'Accrued'].includes(r.status) : !['Rejected', 'Failed'].includes(r.status);
+      if (on) {
+        bal += r.dir === 'CR' ? r.amount : -r.amount;
+        if (r.dir === 'DR') withdrawn += r.amount; else if (r.type === 'Interest') interest += r.amount; else invested += r.amount;
+      }
+      r.bal = rnd2(Math.max(0, bal));
+    });
+    return { summary: { invested: rnd2(invested), interest: rnd2(interest), withdrawn: rnd2(withdrawn), balance: rnd2(mine.reduce((s, i) => s + Number(i.balance), 0)), redeemable: rnd2(mine.reduce((s, i) => s + Number(i.redeemable), 0)) }, rows: rows.reverse() };
+  }
+});
+/* ================= SYNC ON DIRECT VIEW + ONE-TIME RECOVERY (additive) ================= */
+(function () {
+  const _dv = H.directView;
+  H.directView = function (u, p, t) {
+    try { if (u && u.mobile) syncIntentInvestments(u.mobile); } catch (e) {}
+    return _dv(u, p, t);
   };
-  img.onerror=()=>{URL.revokeObjectURL(url);toast('Could not read this image. Please try another photo.');inp.value=''};
-  img.src=url;
-}
-function kycDocsHtml(){
-  Object.keys(KYC_FILES).forEach(k=>delete KYC_FILES[k]);
-  return KYC_DOCS.map(d=>`<label class="up" id="up_${d[0]}"><input type="file" accept="image/*,application/pdf" onchange="kycPick('${d[0]}',this)"><span class="uth">📤</span><span class="ut"><b>${d[1]}</b><small>${d[2]}</small></span><span class="uc">Upload</span></label>`).join('');
-}
+})();
 
-
-async function prof(){
-  ME=await call('me');
-  $('#main').innerHTML=`<h2>Profile</h2><div class="card"><div class="row"><span>Name</span><b>${esc(ME.name)}</b></div><div class="row"><span>Email</span><b>${esc(ME.email)}</b></div><div class="row"><span>Mobile</span><b>${esc(ME.mobile)}</b></div><div class="row"><span>Account</span><span class="pill ${ME.status}">${ME.status}</span></div><div class="row"><span>KYC</span><span class="pill ${ME.kyc}">${ME.kyc}</span></div></div>
-  ${ME.kyc==='Verified'||ME.kyc==='Pending'?`<div class="card" style="margin-top:12px"><b>KYC details</b>${ME.aadhaar?`<div class="row"><span>Aadhaar</span><b>${esc(ME.aadhaar)}</b></div>`:''}<div class="row"><span>PAN</span><b>${esc(ME.pan)}</b></div><div class="row"><span>Bank account</span><b>${esc(ME.acct)}</b></div><div class="row"><span>IFSC</span><b>${esc(ME.ifsc)}</b></div>${ME.docs?`<div class="row"><span>Documents</span><span class="pill Verified">Uploaded</span></div>`:''}</div>`:
-  `<h3>Complete KYC</h3>${ME.kyc==='Rejected'?'<div class="err">Your KYC was rejected. Please check your details and documents, then submit again.</div>':''}<div class="card"><div id="err" class="err" hidden></div><p class="kyc-note">Verify your identity to start investing. Your details are sent over a secure connection and used only for KYC.</p>
-  <div class="kf-h">1. Identity &amp; bank details</div>
-  <label>Aadhaar number</label><input id="ad" inputmode="numeric" maxlength="14" placeholder="XXXX XXXX XXXX" oninput="kycFmtAadhaar(this)">
-  <label>PAN</label><input id="pn" maxlength="10" style="text-transform:uppercase"><label>Bank account number</label><input id="ac" inputmode="numeric"><label>IFSC code</label><input id="if" maxlength="11" style="text-transform:uppercase">
-  <div class="kf-h">2. Upload documents</div><p class="kyc-note">JPG, PNG or PDF. Make sure all details are clearly readable.</p>
-  ${kycDocsHtml()}
-  <label class="kc"><input type="checkbox" id="kcn"><span>I confirm these details and documents are mine and I consent to WealthBridge using them for KYC verification.</span></label>
-  <button class="btn" id="go" style="width:100%">Submit for verification</button></div>`}
-  <button class="btn sec" style="margin-top:16px" onclick="logout()">Sign out</button>`;
-  const g=$('#go');if(g)g.onclick=e=>act(e.target,async()=>{
-    err('');
-    const ad=val('ad').replace(/\s+/g,'');
-    if(!/^[2-9]\d{11}$/.test(ad))throw new Error('Enter a valid 12-digit Aadhaar number');
-    for(const d of KYC_DOCS)if(!KYC_FILES[d[0]])throw new Error('Please upload your '+d[1]);
-    if(!$('#kcn').checked)throw new Error('Please accept the consent to continue');
-    const b=e.target,t=b.textContent;b.textContent='Uploading…';
-    try{await call('submitKyc',{pan:val('pn'),acct:val('ac'),ifsc:val('if'),aadhaar:ad,docs:KYC_FILES,consent:true})}finally{b.textContent=t}
-    toast('KYC submitted');go('prof')});
+/* Editor se manually chalao: recoverPayment('pay_XXXX','7449603147')
+   Ek purani captured Razorpay payment ko ONE_TIME investment bana deta hai (pehli Active product me). */
+function recoverPayment(payId, mobile) {
+  intentSheet();
+  const m = last10(mobile);
+  const hit = readCaptured(m).find(p => p.pid === String(payId).trim());
+  if (!hit) return 'Captured payment not found (mobile / PAYSYNC_FROM / status check karo)';
+  const pr = all('Products').find(x => x.status === 'Active');
+  if (!pr) return 'No active product';
+  const used = new Set();
+  all('WalletTxns').concat(all('Transactions')).forEach(t => { if (t.paymentId) used.add(String(t.paymentId)); });
+  if (used.has(hit.pid)) return 'Ye payment pehle hi wallet/investment me use ho chuki hai';
+  add('PayIntents', { userId: '', mobile: m, productId: pr.id, frequency: 'ONE_TIME', amount: hit.amt, lockDays: '', invId: '', status: 'Pending',
+    created: new Date((isNaN(hit.t) ? Date.now() : hit.t) - 60000).toISOString() });
+  return JSON.stringify(syncIntentInvestments(m));
 }
-async function logout(){await api('logout');TOKEN=null;ME=null;authView('login')}
-(function(){let t=null;try{t=sessionStorage.getItem('wb_t');sessionStorage.removeItem('wb_t')}catch(e){}
- if(!t)return authView('login');
- $('#app').innerHTML='<div class="sk" style="margin:40px 16px"></div>';
- TOKEN=t;api('me').then(r=>{if(r&&r.ok){ME=r.data;shell()}else{TOKEN=null;authView('login')}}).catch(()=>{TOKEN=null;authView('login')})})();
-if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
-let _ip=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_ip=e;const b=document.createElement('button');b.id='pwaBtn';b.className='btn sm';b.textContent='Install app';b.style.cssText='position:fixed;right:14px;bottom:84px;z-index:25;box-shadow:0 6px 20px rgba(20,24,63,.25)';b.onclick=()=>{b.remove();_ip.prompt();_ip=null};document.body.append(b);pwaShow()});
-/* Install button: only on signed-out screens (login/register/OTP/reset) and Home */
-function pwaShow(){const b=document.getElementById('pwaBtn');if(b)b.style.display=(!TOKEN||PAGE==='dash')?'':'none'}
-new MutationObserver(pwaShow).observe($('#app'),{childList:true,subtree:true});
-window.addEventListener('appinstalled',()=>{const b=document.getElementById('pwaBtn');if(b)b.remove()});
-</script></body></html>
