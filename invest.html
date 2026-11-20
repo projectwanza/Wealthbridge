@@ -227,6 +227,7 @@ openInvest=async function(p){
   let pm;
   try{pm=await call('pubPayBtn')}catch(e){m.remove();toast(e.message);return}
   if(pm.mode==='api'){m.remove();return _openInvestOld(p)}
+  if(pm.mode==='button'){m.remove();return _openInvestOld(p)} /* button mode: amount + intent save hoga, phir Razorpay button */
   if(pm.mode!=='button'||!pm.buttonCode){m.remove();toast('Online payments are currently unavailable.');return}
   const s=$('#rzslot');s.innerHTML='';
   try{s.appendChild(document.createRange().createContextualFragment(pm.buttonCode))}catch(e){s.textContent='Payment button could not be loaded.'}
